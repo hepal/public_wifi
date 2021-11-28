@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="24px" viewBox="0 0 28 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/statistic/on</title>
+    <g id="element" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard" transform="translate(-252.000000, -93.000000)">
+            <g id="Group" transform="translate(250.000000, 89.000000)">
+                <g id="Group-2" transform="translate(2.666667, 4.000000)">
+                    <g id="Group" transform="translate(0.799069, 0.600000)" fill="#0050E8">
+                        <polygon id="Path" points="17.8675974 9.77333333 23.5209308 -3.06236518e-16 25.8275974 1.33333333 18.8542641 13.4 10.1742641 8.4 2.07736214 21.2202112 5.87251576e-12 18.9860354 9.20093077 4.73333333"></polygon>
+                    </g>
+                    <polygon id="Path" fill="#37474F" points="26.6666667 21.3333333 26.6666667 24 0 24 0 0 2.66666667 0 2.66666667 21.3333333"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

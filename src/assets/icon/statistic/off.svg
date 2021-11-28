@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="24px" viewBox="0 0 28 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/statistic/off</title>
+    <g id="element" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard" transform="translate(-183.000000, -93.000000)" fill="#98A8AF" fill-rule="nonzero">
+            <g id="Group" transform="translate(181.000000, 89.000000)">
+                <g id="Group" transform="translate(2.666667, 4.000000)">
+                    <polygon id="Path" points="26.6666667 21.3333333 26.6666667 24 0 24 0 0 2.66666667 0 2.66666667 21.3333333"></polygon>
+                    <polygon id="Path" points="18.6666667 10.3733333 24.32 0.6 26.6266667 1.93333333 19.6533333 14 10.9733333 9 2.87643137 21.8202112 0.799069233 19.5860354 10 5.33333333"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
