@@ -11,14 +11,25 @@
         :unit="indicator.unit"
       />
     </IndicatorContainer>
+    <AlarmListContainer>
+      <WarnAlarmList
+        v-for="alarm in alarmListDummy"
+        :key="alarm.id"
+        :type="alarm.type"
+        :level="alarm.level"
+        :date="alarm.date"
+        :img="alarm.img"
+      />
+    </AlarmListContainer>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import styled from 'vue-styled-components';
+import styled from "vue-styled-components";
 import MapCanvas from "../components/MapCanvas/MapCanvas";
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
+import WarnAlarmList from '../components/AlarmList/WarnAlarmList/WarnAlarmList'
 
 // assets
 import ic_dust from "../assets/icon/indicator/dust.svg";
@@ -35,58 +46,100 @@ const IndicatorContainer = styled.div`
   width: 100%;
 `;
 
+const AlarmListContainer = styled.div`
+  position: absolute;
+  top: 96px;
+  right: 12px;
+`;
+
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
     MapCanvas,
     IndicatorContainer,
-    CardIndicator
+    CardIndicator,
+    AlarmListContainer,
+    WarnAlarmList
   },
   data() {
     return {
       indicatorListDummy: [
         {
-          id: 'dust',
-          title: '초미세먼지',
-          unit: '㎍/㎥',
+          id: "dust",
+          title: "초미세먼지",
+          unit: "㎍/㎥",
           value: 23,
           img: ic_dust,
-          isSelected: false
+          isSelected: false,
         },
         {
-          id: 'no2',
-          title: '이산화질소(NO2)',
-          unit: 'ppm',
+          id: "no2",
+          title: "이산화질소(NO2)",
+          unit: "ppm",
           value: 0.012,
           img: ic_no2,
-          isSelected: false
+          isSelected: false,
         },
         {
-          id: 'o3',
-          title: '오존(O3)',
-          unit: 'ppm',
+          id: "o3",
+          title: "오존(O3)",
+          unit: "ppm",
           value: 23,
           img: ic_o3,
-          isSelected: false
+          isSelected: false,
         },
         {
-          id: 'temp',
-          title: '온도',
-          unit: '°C',
+          id: "temp",
+          title: "온도",
+          unit: "°C",
           value: 31,
           img: ic_temp,
-          isSelected: false
+          isSelected: false,
         },
         {
-          id: 'humid',
-          title: '습도',
-          unit: '%',
+          id: "humid",
+          title: "습도",
+          unit: "%",
           value: 23,
           img: ic_humid,
-          isSelected: false
+          isSelected: false,
+        },
+      ],
+      alarmListDummy: [
+        {
+          id: "dust",
+          title: "초미세먼지 주의보 발령",
+          type: "초미세먼지",
+          img: ic_dust,
+          level: "주의보",
+          date: "20221-11-12  |  3:15:21pm"
+        },
+         {
+          id: "dust",
+          title: "초미세먼지 주의보 발령",
+          type: "폭염",
+          img: ic_temp,
+          level: "주의보",
+          date: "20221-11-12  |  3:15:21pm"
+        },
+         {
+          id: "dust",
+          title: "오존 주의보 발령",
+          type: "오존",
+          img: ic_o3,
+          level: "주의보",
+          date: "20221-11-12  |  3:15:21pm"
+        },
+         {
+          id: "dust",
+          title: "초미세먼지 주의보 발령",
+          type: "초미세먼지",
+          img: ic_dust,
+          level: "주의보",
+          date: "20221-11-12  |  3:15:21pm"
         },
       ]
-    }
-  }
-}
+    };
+  },
+};
 </script>

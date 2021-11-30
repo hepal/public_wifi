@@ -1,7 +1,9 @@
 <template>
   <Container>
-    <img :src="isSelected ? imgOn : imgOff" alt="" />
-    {{ title }}
+    <router-link :to="to">
+       <img :src="isSelected ? imgOn : imgOff" alt="" />
+       {{ title }}
+    </router-link>
   </Container>
 </template>
 <script>
@@ -16,6 +18,7 @@ export default {
     imgOn: String,
     imgOff: String,
     title: String,
+    to: String
   },
 };
 </script>

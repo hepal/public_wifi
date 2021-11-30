@@ -28,7 +28,8 @@
         :title="tab.title"
         :imgOn="tab.imgOn"
         :imgOff="tab.imgOff"
-        :isSelected="tab.isSelected"
+        :isSelected="isRoute(tab.name)"
+        :to="tab.to"
       />
     </SideBar>
   </Container>
@@ -44,8 +45,10 @@ import img_logo from "../../assets/img/logo.svg";
 import ic_menu from "../../assets/icon/menu.svg";
 import ic_profile from "../../assets/icon/profile.svg";
 import ic_setting from "../../assets/icon/setting.svg";
-import tab_route_on from "../../assets/icon/route_detail/on.svg";
-import tab_route_off from "../../assets/icon/route_detail/off.svg";
+// import tab_route_on from "../../assets/icon/route_detail/on.svg";
+// import tab_route_off from "../../assets/icon/route_detail/off.svg";
+import tab_map_on from "../../assets/icon/map/on.svg";
+import tab_map_off from "../../assets/icon/map/off.svg";
 import tab_statisfic_on from "../../assets/icon/statistic/on.svg";
 import tab_statisfic_off from "../../assets/icon/statistic/off.svg";
 
@@ -64,19 +67,40 @@ export default {
       ic_setting,
       tabList: [
         {
-          title: '노선 정보',
-          imgOn: tab_route_on,
-          imgOff: tab_route_off,
-          isSelected: false
+          title: '메인 지도',
+          imgOn: tab_map_on,
+          imgOff: tab_map_off,
+          isSelected: false,
+          name: 'Home',
+          to: "/"
         },
+        // {
+        //   title: '노선 정보',
+        //   imgOn: tab_route_on,
+        //   imgOff: tab_route_off,
+        //   isSelected: false,
+        //    to: "/"
+        // },
         {
           title: '통계 관리',
           imgOn: tab_statisfic_on,
           imgOff: tab_statisfic_off,
-          isSelected: false
+          isSelected: false,
+          name: 'Statistic',
+          to: "/Statistic"
         }
       ]
     };
   },
+  computed: {
+    currentRouteName() {
+        return this.$route.name;
+    }
+  },
+  methods: {
+    isRoute(name) {
+      return this.$route.name === name;
+    }
+  }
 };
 </script>

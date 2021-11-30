@@ -2,8 +2,8 @@
   <div>
     <Container
       :bg="map_bg_dummy"
+      :color="'#ffcc00'"
     >
-    {{map_bg_dummy}}
     </Container>
   </div>
 </template>
