@@ -25,6 +25,7 @@
 </template>
 
 <script>
+window.CESIUM_BASE_URL = '../../cesium';
 // @ is an alias to /src
 import styled from "vue-styled-components";
 import MapCanvas from "../components/MapCanvas/MapCanvas";
