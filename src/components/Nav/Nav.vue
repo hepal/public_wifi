@@ -9,18 +9,12 @@
     </div>
     <div class="section right">
       <button>
-        <img :src="ic_menu" alt="" />
-      </button>
-      <button>
         <img :src="ic_profile" alt="" />
       </button>
       <button>
         <img :src="ic_setting" alt="" />
       </button>
     </div>
-    <!-- <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/about2">About2</router-link> -->
     <SideBar>
       <SideTab
         v-for="tab in tabList"
@@ -42,7 +36,6 @@ import SideTab from "../SideTab/SideTab";
 
 // assets
 import img_logo from "../../assets/img/logo.svg";
-import ic_menu from "../../assets/icon/menu.svg";
 import ic_profile from "../../assets/icon/profile.svg";
 import ic_setting from "../../assets/icon/setting.svg";
 // import tab_route_on from "../../assets/icon/route_detail/on.svg";
@@ -62,7 +55,6 @@ export default {
   data() {
     return {
       img_logo,
-      ic_menu,
       ic_profile,
       ic_setting,
       tabList: [

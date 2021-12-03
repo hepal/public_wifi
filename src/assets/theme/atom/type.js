@@ -115,8 +115,8 @@ const type = {
     }
     `,
     bttText: `
-    font-size: 14.8px;
-    line-height: 14.8px;
+    font-size: 14px;
+    line-height: 14px;
     letter-spacing: 0.48px;
     `,
     input: `

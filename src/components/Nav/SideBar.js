@@ -2,7 +2,7 @@ import styled from 'vue-styled-components';
 
 const SideBar = styled.div`
   position: fixed;
-  z-index: 9;
+  z-index: 999;
   width: 104px;
   height: 100%;
   top: 64px;
