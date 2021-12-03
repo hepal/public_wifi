@@ -8,7 +8,7 @@ const Container = styled.div`
   height: 64px;
   align-items: center;
   background-color: ${props => props.theme.color.ui.background2};
-  z-index: 99;
+  z-index: 999;
   .section{
     display: flex;
     height: 100%;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/layer</title>
+    <g id="element" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard" transform="translate(-481.000000, -489.000000)">
+            <g id="components/button/square/map-style-selector/toggle" transform="translate(364.000000, 366.000000)">
+                <g id="icon/layer" transform="translate(117.000000, 123.000000)">
+                    <path d="M12,18.54 L19.37,12.8 L21,14.07 L12,21.07 L3,14.07 L4.62,12.81 L12,18.54 M12,16 L3,9 L12,2 L21,9 L12,16 M12,4.53 L6.26,9 L12,13.47 L17.74,9 L12,4.53 Z" id="Shape" fill="#ADADAD"></path>
+                    <rect id="Rectangle" x="0" y="0" width="24" height="24"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -40,18 +40,38 @@ injectGlobal`
   }
   tr,th,td{
     height: 48px;
-    text-align: center;
+    text-align: left;
+    padding-left: 16px;
   }
   th{
     background-color: ${theme.color.brand.primary200};
     color: ${theme.color.brand.primary700};
     word-break: keep-all;
     white-space: pre-line;
-    text-align: center;
+    text-align: left;
+     ${theme.type.size.caption}
   }
   td{
     background-color: ${theme.color.ui.white500};
     color: ${theme.color.ui.strong};
+    ${theme.type.size.body2}
+  }
+  button{
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    *{
+      z-index: 9;
+    }
+  }
+  button:hover:before{
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.04);
   }
 `;
 export default {
@@ -59,7 +79,7 @@ export default {
   components: {
     CustomThemeProvider,
     Nav,
-  },
+  }
 };
 </script>
 <style>

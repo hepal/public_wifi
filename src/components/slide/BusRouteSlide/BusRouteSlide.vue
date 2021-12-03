@@ -1,39 +1,42 @@
 <template>
   <Container :isPop="isPop">
-    <button v-on:click="isPop = !isPop" class="close">✕</button>
+    <button v-on:click="togglePop" class="close">✕</button>
     <h3>버스 노선 현황 정보</h3>
     <SectionRow>
-      <label v-for="(route, index) in busRouteList" :key="index">
-        {{ `${route.number}번` }}
+      <CheckContainer v-for="(route, index) in busRouteList" :key="index">
         <input
           type="checkbox"
           :id="route.number"
-          value="Mike"
-          :v-model="route.number"
+          :value="route.number"
+          v-model="checkedNames"
         />
-      </label>
+        <label :for="route.number">
+          {{ `${route.number}` }}
+        </label>
+      </CheckContainer>
     </SectionRow>
+    <MeasureTime>
+      <div>
+        측정시간: <span>{{ measureTime }}</span>
+      </div>
+      <button>
+        <img :src="ic_refrsh" alt="" />
+      </button>
+    </MeasureTime>
     <TableSection>
-      <table>
-        <tr>
-          <th v-for="(item, index) in routeDataDummyList.header" :key="index">
-            {{ item }}
-          </th>
-        </tr>
-        <tr v-for="(item, index) in routeDataDummyList.data" :key="index">
-          <td>
-            {{ item.busNumber }}
-          </td>
-          <td v-for="(datum, index) in item.data" :key="index">
-            {{ datum }}
-          </td>
-        </tr>
-      </table>
+      <KeyIndicatorTable :tableData="routeDataDummyList" />
     </TableSection>
+    <LegendIndicator> </LegendIndicator>
   </Container>
 </template>
 <script>
 import styled from "vue-styled-components";
+import { TYPE, CODE, SCALE } from "../../../globalConst/indicatorCode";
+import KeyIndicatorTable from "@/components/table/KeyIndicatorTable/KeyIndicatorTable";
+import LegendIndicator from "@/components/table/KeyIndicatorTable/LegendIndicator";
+
+// Assets
+import ic_refrsh from "../../../assets/icon/action/refresh.svg";
 
 const ContainerProps = { isPop: Boolean };
 
@@ -46,8 +49,8 @@ const Container = styled("div", ContainerProps)`
   transition: all 0.3s ease-in;
   position: fixed;
   top: 0;
-  left: ${(props) => (props.isPop ? "104px" : "-680px")};
-  z-index: 9;
+  left: ${(props) => (props.isPop ? "104px" : "-728px")};
+  z-index: 99;
   text-align: left;
   button.close {
     position: absolute;
@@ -64,22 +67,46 @@ const Container = styled("div", ContainerProps)`
     font-size: 20px;
   }
 `;
+
+const MeasureTime = styled.div`
+  width: 100%;
+  height: 48px;
+  /* justify-content: space-between; */
+  display: flex;
+  align-items: center;
+  span {
+    margin-left: 8px;
+    margin-right: 16px;
+  }
+  button {
+    width: 32px;
+    height: 32px;
+    /* border-radius: 50%; */
+    background-color: #fff;
+    outline: none;
+    border: none;
+  }
+`;
 const SectionRow = styled.div`
   width: calc(100% - 48px);
   display: flex;
   flex-wrap: wrap;
-  padding: 24px;
+  padding: 16px;
   border: solid 0.5px ${(props) => props.theme.color.ui.low};
   border-radius: 4px;
   margin-bottom: 24px;
+`;
+
+const CheckContainer = styled.div`
+  width: 20%;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
   label {
-    width: 20%;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    input {
-      margin-left: 8px;
-    }
+  }
+  input {
+    margin-right: 12px;
   }
 `;
 
@@ -87,52 +114,73 @@ const TableSection = styled.div`
   width: 100%;
   height: calc(48px * 8);
   overflow-y: auto;
+  margin-bottom: 48px;
+  td,
+  th,
+  tr {
+    padding: 0px !important;
+    text-align: center !important;
+  }
 `;
 
 export default {
   name: "BusRouteSlide",
   components: {
     Container,
+    MeasureTime,
     SectionRow,
     TableSection,
+    KeyIndicatorTable,
+    LegendIndicator,
+    CheckContainer,
   },
   data() {
     return {
+      CODE,
+      SCALE,
+      TYPE,
+      ic_refrsh,
+      checkedNames: ["모두 선택"],
+      measureTime: "2021-10-21  13:11:29",
       busRouteList: [
         {
-          number: 240,
+          number: "모두 선택",
+          isCheck: true,
+        },
+        {
+          number: "240번",
           isCheck: false,
         },
         {
-          number: 425,
+          number: "425번",
           isCheck: false,
         },
         {
-          number: 503,
+          number: "503번",
           isCheck: false,
         },
         {
-          number: 523,
+          number: "523번",
           isCheck: false,
         },
         {
-          number: 623,
+          number: "623번",
           isCheck: false,
         },
         {
-          number: 724,
+          number: "724번",
           isCheck: false,
         },
         {
-          number: 730,
+          number: "730번",
           isCheck: false,
         },
         {
-          number: 805,
+          number: "805번",
           isCheck: false,
         },
         {
-          number: 937,
+          number: "937번",
           isCheck: false,
         },
       ],
@@ -148,39 +196,93 @@ export default {
         data: [
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 23.0 },
+              { type: TYPE.NO2, value: 0.012 },
+              { type: TYPE.O3, value: 0.0031 },
+              { type: TYPE.TEMPERATURE, value: 35.6 },
+              { type: TYPE.HUMID, value: 65.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 15.0 },
+              { type: TYPE.NO2, value: 0.003 },
+              { type: TYPE.O3, value: 0.0001 },
+              { type: TYPE.TEMPERATURE, value: 35.2 },
+              { type: TYPE.HUMID, value: 65.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 13.0 },
+              { type: TYPE.NO2, value: 0.009 },
+              { type: TYPE.O3, value: 0.0023 },
+              { type: TYPE.TEMPERATURE, value: 35.0 },
+              { type: TYPE.HUMID, value: 65.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 50.0 },
+              { type: TYPE.NO2, value: 0.012 },
+              { type: TYPE.O3, value: 0.0031 },
+              { type: TYPE.TEMPERATURE, value: 29.0 },
+              { type: TYPE.HUMID, value: 43.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 65.0 },
+              { type: TYPE.NO2, value: 0.009 },
+              { type: TYPE.O3, value: 0.0031 },
+              { type: TYPE.TEMPERATURE, value: 32.0 },
+              { type: TYPE.HUMID, value: 12.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 25.0 },
+              { type: TYPE.NO2, value: 0.019 },
+              { type: TYPE.O3, value: 0.0031 },
+              { type: TYPE.TEMPERATURE, value: 34.0 },
+              { type: TYPE.HUMID, value: 23.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 8.0 },
+              { type: TYPE.NO2, value: 0.0017 },
+              { type: TYPE.O3, value: 0.0031 },
+              { type: TYPE.TEMPERATURE, value: 35.6 },
+              { type: TYPE.HUMID, value: 89.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 45.0 },
+              { type: TYPE.NO2, value: 0.011 },
+              { type: TYPE.O3, value: 0.0031 },
+              { type: TYPE.TEMPERATURE, value: 35.0 },
+              { type: TYPE.HUMID, value: 45.0 },
+            ],
           },
           {
             busNumber: "5070",
-            data: [23, 0.012, 0.0031, 35, 65],
+            data: [
+              { type: TYPE.DUST, value: 12.0 },
+              { type: TYPE.NO2, value: 0.009 },
+              { type: TYPE.O3, value: 0.0031 },
+              { type: TYPE.TEMPERATURE, value: 35.0 },
+              { type: TYPE.HUMID, value: 12.0 },
+            ],
           },
         ],
       },
@@ -188,6 +290,19 @@ export default {
   },
   props: {
     isPop: Boolean,
+    togglePop: Function
+  },
+  methods: {
+    levelValidator(value, type) {
+      if (type === TYPE.DUST || type === TYPE.NO2 || type === TYPE.O3) {
+        if (value < SCALE[type][1]) return CODE.GOOD;
+        else if (value < SCALE[type][2]) return CODE.NORMAL;
+        else if (value < SCALE[type][3]) return CODE.BAD;
+        else return CODE.WORSE;
+      } else {
+        return CODE.NONE;
+      }
+    },
   },
 };
 </script>

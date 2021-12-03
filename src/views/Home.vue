@@ -3,12 +3,15 @@
     <!-- 맵 캔버스 -->
     <MapCanvas />
     <!-- 버르 루트정보 FAB -->
-    <ButtonToggleRoute v-on:click="isRoutePop = !isRoutePop">
+    <ButtonToggleRoute
+      v-on:click="isRoutePop = !isRoutePop"
+    >
       <img :src="ic_route" alt='' />
     </ButtonToggleRoute>
     <!-- 버스 루트 슬라이드 -->
     <BusRouteSlide
       :isPop="isRoutePop"
+      :togglePop="togglePop"
     />
     <!-- 주요 기상정보 지표 컨테이너 -->
     <IndicatorContainer>
@@ -56,12 +59,14 @@ const IndicatorContainer = styled.div`
   left: 124px;
   bottom: 24px;
   width: 100%;
+  z-index: 9;
 `;
 
 const AlarmListContainer = styled.div`
   position: absolute;
-  top: 96px;
+  top: 80px;
   right: 12px;
+  z-index: 9;
 `;
 
 const ButtonToggleRoute = styled.button`
@@ -78,8 +83,8 @@ const ButtonToggleRoute = styled.button`
   ${props => props.theme.layout.flexColCenter}
   background-color: #fff;
   img{
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
   }
 ;`
 
@@ -93,6 +98,11 @@ export default {
     ButtonToggleRoute,
     WarnAlarmList,
     BusRouteSlide,
+  },
+  methods:{
+    togglePop (){
+      this.isRoutePop = !this.isRoutePop;
+    }
   },
   data() {
     return {

@@ -11,9 +11,11 @@
       <button>
         <img :src="ic_profile" alt="" />
       </button>
-      <button>
-        <img :src="ic_setting" alt="" />
-      </button>
+      <router-link to="/setting">
+        <button>
+          <img :src="ic_setting" alt="" />
+        </button>
+      </router-link>
     </div>
     <SideBar>
       <SideTab
@@ -50,7 +52,7 @@ export default {
   components: {
     Container,
     SideBar,
-    SideTab
+    SideTab,
   },
   data() {
     return {
@@ -59,12 +61,12 @@ export default {
       ic_setting,
       tabList: [
         {
-          title: '메인 지도',
+          title: "메인 지도",
           imgOn: tab_map_on,
           imgOff: tab_map_off,
           isSelected: false,
-          name: 'Home',
-          to: "/"
+          name: "Home",
+          to: "/",
         },
         // {
         //   title: '노선 정보',
@@ -74,25 +76,25 @@ export default {
         //    to: "/"
         // },
         {
-          title: '통계 관리',
+          title: "통계 관리",
           imgOn: tab_statisfic_on,
           imgOff: tab_statisfic_off,
           isSelected: false,
-          name: 'Statistic',
-          to: "/Statistic"
-        }
-      ]
+          name: "Statistic",
+          to: "/Statistic",
+        },
+      ],
     };
   },
   computed: {
     currentRouteName() {
-        return this.$route.name;
-    }
+      return this.$route.name;
+    },
   },
   methods: {
     isRoute(name) {
       return this.$route.name === name;
-    }
-  }
+    },
+  },
 };
 </script>

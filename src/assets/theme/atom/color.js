@@ -41,7 +41,7 @@ const color = {
     white700: colorToken.white700,
     white600: colorToken.white600,
     white500: colorToken.white500,
-    selected: colorToken.blueGray700,
+    selected: colorToken.blue700,
     enabled: colorToken.gray200,
   },
   signal: {
@@ -50,6 +50,12 @@ const color = {
     fail: colorToken.pinkRed,
     warn: colorToken.red,
     highlight: colorToken.pinkRed
+  },
+  level: {
+    good: colorToken.skyBlue,
+    normal: colorToken.green,
+    bad: colorToken.yellow,
+    worse: colorToken.red,
   },
   input: {
     disabled: colorToken.low,

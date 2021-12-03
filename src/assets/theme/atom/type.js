@@ -108,9 +108,19 @@ const type = {
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0;
-    @media only screen and (max-width: 480px) {
+    @media only screen and (max-width: 480px) {c
       font-size: 12px;
       line-height: 16px;
+      letter-spacing: 0;
+    }
+    `,
+    caption2: `
+    font-size: 10px;
+    line-height: 14px;
+    letter-spacing: 0;
+    @media only screen and (max-width: 480px) {c
+      font-size: 10px;
+      line-height: 14px;
       letter-spacing: 0;
     }
     `,
