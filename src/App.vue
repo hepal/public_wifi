@@ -88,6 +88,12 @@ body {
   width: 100%;
   height: 100%;
 }
+button{
+  color: inherit;
+  background-color: inherit;
+  outline: none;
+  border: inherit;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

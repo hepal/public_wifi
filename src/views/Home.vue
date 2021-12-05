@@ -35,6 +35,21 @@
         :img="alarm.img"
       />
     </AlarmListContainer>
+    <!-- 모달 -->
+    <Test>
+      <button v-on:click="toggleAlertPop">
+        상황전파 발생 테스트
+      </button>
+    </Test>
+    <AlertNoticeModal
+      v-if="isAlertNoticePop"
+      :onClose="toggleAlertPop"
+      :onNext="toggleSubmitMsgPop"
+    />
+    <SubmitMsgModal
+      v-if="isSubmitMsgPop"
+      :onClose="toggleSubmitMsgPop"
+    />
   </div>
 </template>
 <script>
@@ -44,6 +59,10 @@ import MapCanvas from "../components/MapCanvas/MapCanvas";
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
 import WarnAlarmList from '../components/AlarmList/WarnAlarmList/WarnAlarmList';
 import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
+
+// Modal
+import AlertNoticeModal from '@/components/Modal/AlertNoticeModal/AlertNoticeModal';
+import SubmitMsgModal from '@/components/Modal/SubmitMsgModal/SubmitMsgModal';
 
 // assets
 import ic_dust from "../assets/icon/indicator/dust.svg";
@@ -88,6 +107,20 @@ const ButtonToggleRoute = styled.button`
   }
 ;`
 
+const Test = styled.div`
+  position: absolute;
+  top: 200px;
+  left: 600px;
+  z-index: 4;
+  button{
+    width: 400px;
+    height: 80px;
+    background-color: #cc1122;
+    color: #fff;
+    font-size: 24px;
+  }
+`;
+
 export default {
   name: "Home",
   components: {
@@ -98,10 +131,20 @@ export default {
     ButtonToggleRoute,
     WarnAlarmList,
     BusRouteSlide,
+    AlertNoticeModal,
+    Test,
+    SubmitMsgModal
   },
   methods:{
     togglePop (){
       this.isRoutePop = !this.isRoutePop;
+    },
+    toggleAlertPop (){
+      this.isAlertNoticePop = !this.isAlertNoticePop;
+    },
+    toggleSubmitMsgPop (){
+      this.isAlertNoticePop = false;
+      this.isSubmitMsgPop = !this.isSubmitMsgPop;
     }
   },
   data() {
@@ -110,6 +153,10 @@ export default {
       ic_route,
       // STATE,
       isRoutePop: false,
+      // 주의보 발령 팝업
+      isAlertNoticePop: false,
+      // 상황전파 팝업
+      isSubmitMsgPop: false,
       // DATA DUMMY
       indicatorListDummy: [
         {
