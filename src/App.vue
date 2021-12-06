@@ -11,6 +11,7 @@ import CustomThemeProvider from "./ThemeProvider";
 import Nav from "./components/Nav/Nav";
 import { injectGlobal } from "vue-styled-components";
 
+
 injectGlobal`
 	@font-face {
 	  font-family: 'Operator Mono';

@@ -1,9 +1,12 @@
 <template>
   <div class="home">
-    <MapCanvas />
+    <MapCanvas v-bind:sensorList="sensorList" ref="mapCanvas">      
+    </MapCanvas>
     <IndicatorContainer>
       <CardIndicator
+        v-on:requestSensorData="getSensorData"
         v-for="indicator in indicatorListDummy"
+        :sensoeId="indicator.id"
         :key="indicator.id"
         :title="indicator.title"
         :img="indicator.img"
@@ -16,6 +19,11 @@
 
 <script>
 window.CESIUM_BASE_URL = '../../cesium';
+
+import axios from 'axios';
+import HashMap from 'hashmap';
+
+
 // @ is an alias to /src
 import styled from 'vue-styled-components';
 import MapCanvas from "../components/MapCanvas/MapCanvas";
@@ -27,6 +35,83 @@ import ic_humid from "../assets/icon/indicator/humid.svg";
 import ic_no2 from "../assets/icon/indicator/no2.svg";
 import ic_o3 from "../assets/icon/indicator/o3.svg";
 import ic_temp from "../assets/icon/indicator/temp.svg";
+
+var jsonData = {
+  requestSensorData : {
+    beginYear: 2021,
+    beginMonth: 12,
+    beginDay: 6,
+    endYear: 2021,
+    endMonth: 12,
+    endDay: 6
+  }
+};
+
+var sensorMap = new HashMap();
+var sensorList = [];
+
+//sensor 값을 가져온다.
+function requestData(home) {
+  axios.post('https://cors-anywhere.herokuapp.com/http://210.90.145.70:12000/Sensor',JSON.stringify(jsonData),
+      {headers: { 'Content-Type': 'application/json'} })
+      .then(function(response) {
+        if(response.status == 200) {
+          sensorMap.clear();
+          console.log(response);
+          //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
+          for(let i of response.data.sensorDatas) {
+            //console.log("%f,%f",i.lat,i.lon);
+            if( 30 <i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
+              sensorMap.set(i.serno,i);
+            }
+          }
+
+          let tempSensorList = [];
+          sensorMap.forEach(function(value,key) {
+            console.log("%s,%s,%f,%f",key,value.regdate,value.lat,value.lon);
+            tempSensorList.push(value);
+          });
+
+          sensorList = tempSensorList;
+
+          home.$refs.mapCanvas.updateSensors(sensorList);
+        }
+      });      
+}
+
+//선과 점과의 거리를 구한다.
+function pDistance(x, y, x1, y1, x2, y2) {
+
+  var A = x - x1;
+  var B = y - y1;
+  var C = x2 - x1;
+  var D = y2 - y1;
+
+  var dot = A * C + B * D;
+  var len_sq = C * C + D * D;
+  var param = -1;
+  if (len_sq != 0) //in case of 0 length line
+      param = dot / len_sq;
+
+  var xx, yy;
+
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  }
+  else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  }
+  else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
+
+  var dx = x - xx;
+  var dy = y - yy;
+  return Math.sqrt(dx * dx + dy * dy);
+}
 
 const IndicatorContainer = styled.div`
   position: fixed;
@@ -43,8 +128,14 @@ export default {
     IndicatorContainer,
     CardIndicator
   },
+  methods: {
+    getSensorData() {
+      requestData(this)
+    },
+  },
   data() {
     return {
+      sensorList : sensorList,
       indicatorListDummy: [
         {
           id: 'dust',
