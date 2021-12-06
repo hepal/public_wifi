@@ -6,6 +6,7 @@
 </template>
 
 <script>
+
 import { Viewer, Ion, Camera, Rectangle, BingMapsImageryProvider, BingMapsStyle,WebMapServiceImageryProvider,OpenStreetMapImageryProvider,
   ScreenSpaceEventHandler, ScreenSpaceEventType, defined as CesiumDefined, CesiumTerrainProvider,
   Cartesian3,Cartesian2, Color,VerticalOrigin, HeightReference,LabelStyle, Entity, ColorMaterialProperty,createOsmBuildings,
@@ -16,10 +17,18 @@ import Container from "./Container";
 import map_bg_dummy from "../../assets/dummy/map_bg_mono.jpg"
 import styled from 'vue-styled-components';
 import bus_route from '../../assets/route/bus_all.json'
-// import {get} from 'ol/proj';
-// import {register} from 'ol/proj/proj4'
-// import {transform} from 'ol/proj/proj4'
 import proj4 from 'proj4/dist/proj4'
+import HashMap from 'hashmap';
+//import mssql from 'mssql'
+//const sql = require("msnodesqlv8");
+//var mssql = require('mssql').default;
+ //var Connection = require('tedious').Connection;
+ //var Request = require('tedious').Request;
+ //var TYPES = require('tedious').TYPES;
+ //bus icon
+import bus_icon from "../../assets/icon/bus/bus.png";
+
+var busMap = null;
 
 proj4.defs('EPSG:5187','+proj=tmerc +lat_0=38 +lon_0=129 +k=1 +x_0=200000 +y_0=600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
 //register(proj4);
@@ -49,7 +58,11 @@ proj4.defs('EPSG:5187','+proj=tmerc +lat_0=38 +lon_0=129 +k=1 +x_0=200000 +y_0=6
           heightReference: HeightReference.RELATIVE_TO_GROUND 
       }
     });
-  }
+  } 
+
+  //버스 poi 리스트
+  var bus_pois = [];
+  var facilityUrl = "./images/bus.png";
 
   function createSampleBusRoute() {
     let linePosString = '[{"X": 127.0616282045669, "Y": 37.644782138098435},{"X": 127.06394485670444, "Y": 37.645432137572854},{"X": 127.06634919695142, "Y": 37.646094961197136},{"X": 127.06960943453808, "Y": 37.649087942133185},{"X": 127.07297452619258, "Y": 37.65136654739722},{"X": 127.07427763401154, "Y": 37.6545510443615},{"X": 127.07510931530567, "Y": 37.657638623057316},{"X": 127.07254219926395, "Y": 37.65985131704873},{"X": 127.06938331855696, "Y": 37.66252210838101},{"X": 127.06719138150517, "Y": 37.664047436738485},{"X": 127.06627182710909, "Y": 37.66430054219336},{"X": 127.06343326185048, "Y": 37.66469274575584},{"X": 127.06231660115802, "Y": 37.66504814404419},{"X": 127.06116131873159, "Y": 37.664990433174275}]';
@@ -72,10 +85,7 @@ proj4.defs('EPSG:5187','+proj=tmerc +lat_0=38 +lon_0=129 +k=1 +x_0=200000 +y_0=6
               material: Color.GREEN,
               clampToGround: true
           },
-      });
-
-      //버스 아이콘 생성        
-      var facilityUrl = "./Assets/Images/bus.png"
+      });      
 
       for(i=0;i<linePos.length;i++) {
           var cart3 = Cartesian3.fromDegrees(linePos[i].X,linePos[i].Y,30);
@@ -89,17 +99,42 @@ proj4.defs('EPSG:5187','+proj=tmerc +lat_0=38 +lon_0=129 +k=1 +x_0=200000 +y_0=6
       }
   }
 
+function _updateSensors(viewer,sensorList) {
+
+    for(let p of bus_pois) {
+      viewer.entities.remove(p);
+    }
+
+    for(let i of sensorList) {
+      //console.log(i.serno);
+      var cart3 = Cartesian3.fromDegrees(i.lon,i.lat,30);
+      let poi = viewer.entities.add({
+          position: cart3,
+          billboard: {
+          image: bus_icon,
+          heightReference : HeightReference.RELATIVE_TO_GROUND,
+          },
+      });  
+      bus_pois.push(poi);
+    }
+}
   
 
 export default {
   name: 'MapCanvas',
-  
+  props:["sensorList"],
   data: function() {
       return {
         viewer: null, // Cesium Viewer 객체        
         cesiumAccessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmMjkyMTM3YS1iM2JjLTQzNWQtOTkyNi00N2JhNDI3YTQ2YmUiLCJpZCI6NzM1NzgsImlhdCI6MTYzNzA0NDk4MX0.FErgsstOfS-ML_MJ7vdPcHCdnIV6160YcbyrtEcEWZg',
       }
     },
+
+  methods: {
+    updateSensors(sensorList) {
+      _updateSensors(this.viewer,sensorList);
+    }
+  },
 
   created() {
       console.log("Map created.");
@@ -126,11 +161,12 @@ export default {
       timeline: false,
       navigationHelpButton: false,
       navigationInstructionsInitiallyVisible: false,
-      animation: false,      
+      animation: true,      
       // 세슘 Ion 지형 사용시
       terrainProvider: createWorldTerrain(),
     });      
 
+    //건물 사용
     this.viewer.scene.primitives.add(createOsmBuildings());
     this.viewer.scene.globe.depthTestAgainstTerrain = true;
     //this.viewer.scene.primitives.add(Cesium.createOsmBuildings());   
@@ -142,11 +178,11 @@ export default {
       setMarkerInPos(Cartographic.fromCartesian(selectedLocation),this.viewer);
     }, false);
 
-    //var bing = new BingMapsImageryProvider({
-    //     url : 'https://dev.virtualearth.net',
-    //     key : 'AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr',
-    //     mapStyle : BingMapsStyle.AERIAL
-    // });
+    var bing = new BingMapsImageryProvider({
+        url : 'https://dev.virtualearth.net',
+        key : 'AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr',
+        mapStyle : BingMapsStyle.ROAD_ON_DEMAND 
+    });
 
     // var layers = this.viewer.scene.imageryLayers;
     // layers.addImageryProvider(bing);
@@ -159,7 +195,7 @@ export default {
     });  
 
     var layers = this.viewer.scene.imageryLayers;
-    var layer = layers.addImageryProvider(osm);
+    var layer = layers.addImageryProvider(bing);
     layer.saturation = 0.1;
 
     this.viewer.camera.flyTo({
@@ -168,9 +204,7 @@ export default {
         heading : CesiumMath.toRadians(0.0),
         pitch : CesiumMath.toRadians(-15.0),
       }
-    });
-
-    
+    });    
 
      let source = new proj4.Proj('EPSG:5187');  
      let dest = new proj4.Proj('EPSG:4326');      
@@ -200,7 +234,7 @@ export default {
 
       if(bus_line_pos.length > 1) {
         //console.log(bus_line_pos);
-        let colorHsl = Color.fromHsl(Math.random(),0.8,0.5,0.8);
+        let colorHsl = Color.fromHsl(Math.random() * 0.3,0.8,0.5,0.8);
         let bus_line = this.viewer.entities.add({
             name: "Green line",
             polyline: {
