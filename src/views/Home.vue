@@ -40,10 +40,10 @@ var jsonData = {
   requestSensorData : {
     beginYear: 2021,
     beginMonth: 12,
-    beginDay: 6,
+    beginDay: 7,
     endYear: 2021,
     endMonth: 12,
-    endDay: 6
+    endDay: 7
   }
 };
 
