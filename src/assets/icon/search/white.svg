@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="21px" height="21px" viewBox="0 0 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/search/white</title>
+    <g id="flow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1.0main---admin2" transform="translate(-1134.000000, -164.000000)" fill="#FFFFFF">
+            <g id="components/button/default/regular/icon/primary-copy-3" transform="translate(1075.000000, 154.000000)">
+                <g id="icon/inquiry" transform="translate(58.000000, 9.000000)">
+                    <path d="M21.75,20.689425 L16.085925,15.02535 C18.9133336,11.6309352 18.5707781,6.61300919 15.3083015,3.63432866 C12.0458249,0.655648126 7.01751807,0.769911934 3.893715,3.893715 C0.769911934,7.01751807 0.655648126,12.0458249 3.63432866,15.3083015 C6.61300919,18.5707781 11.6309352,18.9133336 15.02535,16.085925 L20.689425,21.75 L21.75,20.689425 Z M3,9.75 C3,6.02207794 6.02207794,3 9.75,3 C13.4779221,3 16.5,6.02207794 16.5,9.75 C16.5,13.4779221 13.4779221,16.5 9.75,16.5 C6.02379137,16.4958667 3.00413335,13.4762086 3,9.75 Z" id="Fill"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -73,13 +73,49 @@ injectGlobal`
     height: 100%;
     background-color: rgba(0,0,0,0.04);
   }
+
+  #nav {
+    padding: 30px;
+  }
+
+  #nav a {
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  #nav a.router-link-exact-active {
+    color: #42b983;
+  }
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px ${theme.color.ui.white500}; 
+    border-radius: 0px;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${theme.color.brand.secondary100}; 
+    border-radius: 0px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #fff;
+  }
+  a{
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 export default {
   name: "App",
   components: {
     CustomThemeProvider,
     Nav,
-  }
+  },
 };
 </script>
 <style>
@@ -87,8 +123,10 @@ html,
 body {
   width: 100%;
   height: 100%;
+  overflow: overlay;
+  overflow-x: hidden;
 }
-button{
+button {
   color: inherit;
   background-color: inherit;
   outline: none;
@@ -100,17 +138,5 @@ button{
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-#nav a.router-link-exact-active {
-  color: #42b983;
 }
 </style>

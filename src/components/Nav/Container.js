@@ -24,6 +24,7 @@ const Container = styled.div`
     padding-right: 12px;
   }
   button{
+    position: relative;
     width: 48px;
     height: 48px;
     ${props => props.theme.layout.flexColCenter}
