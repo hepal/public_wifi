@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <MapCanvas v-bind:sensorList="sensorList" ref="mapCanvas">      
+    <MapCanvas ref="mapCanvas">      
     </MapCanvas>
     <IndicatorContainer>
       <CardIndicator
