@@ -28,9 +28,12 @@ const colorToken = {
 	gray600: '#6D6D6D',
 	gray400: '#ADADAD',
 	gray200: '#E0E0E0',
+	// variation
+	skyBlue: '#209aff',
 	green: '#24a148',
-	pinkRed: '#fa4d56',
+	yellow: '#f0ba12',
 	red: '#ce1a25',
+	pinkRed: '#fa4d56',
 }
 
 export default colorToken;

@@ -1,5 +1,5 @@
 <template>
-  <Container>
+  <Container :isSelected="isSelected">
     <router-link :to="to">
        <img :src="isSelected ? imgOn : imgOff" alt="" />
        {{ title }}

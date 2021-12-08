@@ -1,32 +1,61 @@
 <template>
   <div class="home">
     <MapCanvas ref="mapCanvas">      
-    </MapCanvas>
+    </MapCanvas>    
+    <!-- 맵 캔버스 -->
+    <MapCanvas />
+    <!-- 버르 루트정보 FAB -->
+    <ButtonToggleRoute
+      v-on:click="isRoutePop = !isRoutePop"
+    >
+      <img :src="ic_route" alt='' />
+    </ButtonToggleRoute>
+    <!-- 버스 루트 슬라이드 -->
+    <BusRouteSlide
+      :isPop="isRoutePop"
+      :togglePop="togglePop"
+    />
+    <!-- 주요 기상정보 지표 컨테이너 -->
     <IndicatorContainer>
       <CardIndicator
         v-on:requestSensorData="getSensorData"
-        v-for="indicator in indicatorListDummy"
+        v-for="(indicator,index) in indicatorListDummy"
         :sensoeId="indicator.id"
-        :key="indicator.id"
+        :key="index"
         :title="indicator.title"
         :img="indicator.img"
         :value="indicator.value"
         :unit="indicator.unit"
       />
     </IndicatorContainer>
+    <!-- 경보 알람리스트 정보 영역 -->
     <AlarmListContainer>
       <WarnAlarmList
-        v-for="alarm in alarmListDummy"
-        :key="alarm.id"
+        v-for="(alarm, index) in alarmListDummy"
+        :key="index"
         :type="alarm.type"
         :level="alarm.level"
         :date="alarm.date"
         :img="alarm.img"
       />
     </AlarmListContainer>
+    <!-- 모달 -->
+    <Test>
+      <button v-on:click="toggleAlertPop">
+        상황전파 발생 테스트
+      </button>
+    </Test>
+    <AlertNoticeModal
+      v-if="isAlertNoticePop"
+      :onClose="toggleAlertPop"
+      :onNext="toggleSubmitMsgPop"
+    />
+    <SubmitMsgModal
+      v-if="isSubmitMsgPop"
+      :onClose="toggleSubmitMsgPop"
+    />
   </div>
 </template>
-
 <script>
 window.CESIUM_BASE_URL = '../../cesium';
 
@@ -38,7 +67,12 @@ import HashMap from 'hashmap';
 import styled from "vue-styled-components";
 import MapCanvas from "../components/MapCanvas/MapCanvas";
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
-import WarnAlarmList from '../components/AlarmList/WarnAlarmList/WarnAlarmList'
+import WarnAlarmList from '../components/AlarmList/WarnAlarmList/WarnAlarmList';
+import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
+
+// Modal
+import AlertNoticeModal from '@/components/Modal/AlertNoticeModal/AlertNoticeModal';
+import SubmitMsgModal from '@/components/Modal/SubmitMsgModal/SubmitMsgModal';
 
 // assets
 import ic_dust from "../assets/icon/indicator/dust.svg";
@@ -46,6 +80,7 @@ import ic_humid from "../assets/icon/indicator/humid.svg";
 import ic_no2 from "../assets/icon/indicator/no2.svg";
 import ic_o3 from "../assets/icon/indicator/o3.svg";
 import ic_temp from "../assets/icon/indicator/temp.svg";
+
 //센서-버스 매칭
 import sensor_bus from '../assets/route/sensor_bus.json'
 
@@ -165,18 +200,56 @@ function pDistance(x, y, x1, y1, x2, y2) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+import ic_route from "../assets/icon/route_detail/off.svg";
+
+
 const IndicatorContainer = styled.div`
   position: fixed;
   display: flex;
-  left: 144px;
+  left: 124px;
   bottom: 24px;
   width: 100%;
+  z-index: 9;
 `;
 
 const AlarmListContainer = styled.div`
   position: absolute;
-  top: 96px;
+  top: 80px;
   right: 12px;
+  z-index: 9;
+`;
+
+const ButtonToggleRoute = styled.button`
+  position: fixed;
+  border: none;
+  outline: none;
+  z-index: 9;
+  top: 80px;
+  left: 124px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: rgba(0,0,0,0.08) 0px 0px 16px;
+  ${props => props.theme.layout.flexColCenter}
+  background-color: #fff;
+  img{
+    width: 24px;
+    height: 24px;
+  }
+;`
+
+const Test = styled.div`
+  position: absolute;
+  top: 200px;
+  left: 600px;
+  z-index: 4;
+  button{
+    width: 400px;
+    height: 80px;
+    background-color: #cc1122;
+    color: #fff;
+    font-size: 24px;
+  }
 `;
 
 export default {
@@ -186,13 +259,28 @@ export default {
     IndicatorContainer,
     CardIndicator,
     AlarmListContainer,
-    WarnAlarmList
+    ButtonToggleRoute,
+    WarnAlarmList,
+    BusRouteSlide,
+    AlertNoticeModal,
+    Test,
+    SubmitMsgModal
   },
-  methods: {
+  methods:{
+    togglePop (){
+      this.isRoutePop = !this.isRoutePop;
+    },
+    toggleAlertPop (){
+      this.isAlertNoticePop = !this.isAlertNoticePop;
+    },
+    toggleSubmitMsgPop (){
+      this.isAlertNoticePop = false;
+      this.isSubmitMsgPop = !this.isSubmitMsgPop;
+    },
     getSensorData() {
       requestData(this)
     },
-  },
+  },  
   created: function() {
     mapCanvas = this;
 
@@ -204,6 +292,15 @@ export default {
   data() {
     return {
       sensorList : sensorList,
+      // IMG
+      ic_route,
+      // STATE,
+      isRoutePop: false,
+      // 주의보 발령 팝업
+      isAlertNoticePop: false,
+      // 상황전파 팝업
+      isSubmitMsgPop: false,
+      // DATA DUMMY
       indicatorListDummy: [
         {
           id: "dust",
