@@ -1,25 +1,18 @@
 <template>
   <div class="home">
-    <MapCanvas ref="mapCanvas">      
-    </MapCanvas>    
     <!-- 맵 캔버스 -->
-    <MapCanvas />
+    <MapCanvas ref="mapCanvas"> </MapCanvas>
     <!-- 버르 루트정보 FAB -->
-    <ButtonToggleRoute
-      v-on:click="isRoutePop = !isRoutePop"
-    >
-      <img :src="ic_route" alt='' />
+    <ButtonToggleRoute v-on:click="isRoutePop = !isRoutePop">
+      <img :src="ic_route" alt="" />
     </ButtonToggleRoute>
     <!-- 버스 루트 슬라이드 -->
-    <BusRouteSlide
-      :isPop="isRoutePop"
-      :togglePop="togglePop"
-    />
+    <BusRouteSlide :isPop="isRoutePop" :togglePop="togglePop" />
     <!-- 주요 기상정보 지표 컨테이너 -->
     <IndicatorContainer>
       <CardIndicator
         v-on:requestSensorData="getSensorData"
-        v-for="(indicator,index) in indicatorListDummy"
+        v-for="(indicator, index) in indicatorListDummy"
         :sensoeId="indicator.id"
         :key="index"
         :title="indicator.title"
@@ -41,38 +34,32 @@
     </AlarmListContainer>
     <!-- 모달 -->
     <Test>
-      <button v-on:click="toggleAlertPop">
-        상황전파 발생 테스트
-      </button>
+      <button v-on:click="toggleAlertPop">상황전파 발생 테스트</button>
     </Test>
     <AlertNoticeModal
       v-if="isAlertNoticePop"
       :onClose="toggleAlertPop"
       :onNext="toggleSubmitMsgPop"
     />
-    <SubmitMsgModal
-      v-if="isSubmitMsgPop"
-      :onClose="toggleSubmitMsgPop"
-    />
+    <SubmitMsgModal v-if="isSubmitMsgPop" :onClose="toggleSubmitMsgPop" />
   </div>
 </template>
 <script>
-window.CESIUM_BASE_URL = '../../cesium';
+window.CESIUM_BASE_URL = "../../cesium";
 
-import axios from 'axios';
-import HashMap from 'hashmap';
-
+import axios from "axios";
+import HashMap from "hashmap";
 
 // @ is an alias to /src
 import styled from "vue-styled-components";
 import MapCanvas from "../components/MapCanvas/MapCanvas";
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
-import WarnAlarmList from '../components/AlarmList/WarnAlarmList/WarnAlarmList';
+import WarnAlarmList from "../components/AlarmList/WarnAlarmList/WarnAlarmList";
 import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
 
 // Modal
-import AlertNoticeModal from '@/components/Modal/AlertNoticeModal/AlertNoticeModal';
-import SubmitMsgModal from '@/components/Modal/SubmitMsgModal/SubmitMsgModal';
+import AlertNoticeModal from "@/components/Modal/AlertNoticeModal/AlertNoticeModal";
+import SubmitMsgModal from "@/components/Modal/SubmitMsgModal/SubmitMsgModal";
 
 // assets
 import ic_dust from "../assets/icon/indicator/dust.svg";
@@ -82,82 +69,138 @@ import ic_o3 from "../assets/icon/indicator/o3.svg";
 import ic_temp from "../assets/icon/indicator/temp.svg";
 
 //센서-버스 매칭
-import sensor_bus from '../assets/route/sensor_bus.json'
+import sensor_bus from "../assets/route/sensor_bus.json";
 
 var jsonBusData = {
-  requestSensorData : {
+  requestSensorData: {
     beginYear: 2021,
     beginMonth: 12,
     beginDay: 7,
     endYear: 2021,
     endMonth: 12,
-    endDay: 7
-  }
+    endDay: 7,
+  },
 };
 
 var sensorMap = new HashMap();
 var sensorList = [];
+var mapCanvas = null;
+
+var sensorAvgValues = {
+   dust : 23,
+   no2 : 0.012,
+   o3 : 23,
+   temp : 31,
+   humid : 35,
+};
 
 //sensor 값을 가져온다.
 function requestData(home) {
-
   var date = new Date();
 
-  jsonBusData.beginYear = date.getFullYear();
-  jsonBusData.beginMonth = date.getMonth() + 1; //0~11
-  jsonBusData.beginDay = date.getDate();
-  jsonBusData.endYear = jsonBusData.beginYear;
-  jsonBusData.endMonth = jsonBusData.beginMonth;
-  jsonBusData.endDay = jsonBusData.beginDay;
+  let jsonBusData = {
+    requestSensorData: {
+      beginYear: date.getFullYear(),
+      beginMonth: date.getMonth() + 1,
+      beginDay: date.getDate(),
+      beginHour: date.getHours(),
+      endYear: date.getFullYear(),
+      endMonth: date.getMonth() + 1,
+      endDay: date.getDate(),
+      endHour: date.getHours(),
+    },
+  };
 
   //axios.post('http://210.90.145.70:12000/Sensor',JSON.stringify(jsonBusData),
-  axios.post('/Sensor',JSON.stringify(jsonBusData),
-      {headers: { 'Content-Type': 'application/json'} })
-      .then(function(response) {
-        if(response.status == 200) {
-          sensorMap.clear();
-          console.log(response);
-          //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
-          for(let i of response.data.sensorDatas) {
-            //console.log("%f,%f",i.lat,i.lon);
-            if( 30 <i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
-              sensorMap.set(i.serno,i);
-            }
+  axios
+    .post("/Sensor", JSON.stringify(jsonBusData), {
+      headers: { "Content-Type": "application/json" },
+    })
+    .then(function (response) {
+      if (response.status == 200) {
+        sensorMap.clear();
+        console.log(response);
+        //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
+        for (let i of response.data.sensorDatas) {
+          //console.log("%f,%f",i.lat,i.lon);
+          if (30 < i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
+            sensorMap.set(i.serno, i);
           }
-
-          let tempSensorList = [];
-          sensorMap.forEach(function(value,key) {
-            console.log("%s,%s,%f,%f",key,value.regdate,value.lat,value.lon);
-            tempSensorList.push(value);
-          });
-
-          sensorList = tempSensorList;
-
-          for(let sensor of sensorList) {
-            let busInfo = getBusInfo(sensor.serno);
-
-            if(null != busInfo) {
-              console.log(busInfo);
-            } else {
-              console.log("%s not exist",sensor.serno);
-            }
-          }
-
-          mapCanvas.$refs.mapCanvas.updateSensors(sensorList);
         }
-      });      
+
+        let tempSensorList = [];
+        sensorMap.forEach(function (value, key) {
+          console.log("%s,%s,%f,%f", key, value.regdate, value.lat, value.lon);
+          tempSensorList.push(value);
+        });
+
+        sensorList = tempSensorList;
+
+        let tsa = {
+          dust : 0,
+          no2 : 0,
+          o3 : 0,
+          temp : 0,
+          humid : 0,
+        };
+
+        let activeSensorList = [];
+        for (let sensor of sensorList) {
+          let busInfo = getBusInfo(sensor.serno);
+
+          tsa.dust += sensor.pm2_5;
+          tsa.no2 += sensor.no2;
+          tsa.o3 += sensor.o3;
+          tsa.temp += sensor.temp;
+          tsa.humid += sensor.humi;
+
+          if (null != busInfo) {
+            let activeSensor = {
+              sensorInfo : sensor,
+              busInfo :  busInfo
+            };
+
+            activeSensorList.push(activeSensor);
+
+            console.log(busInfo);
+          } else {
+            console.log("%s not exist", sensor.serno);
+          }
+        }
+
+        if(sensorList.length > 0) {
+          mapCanvas.indicatorListDummy[0].value = roundToTwo(tsa.dust / sensorList.length);
+          mapCanvas.indicatorListDummy[1].value = roundToTwo(tsa.no2 / sensorList.length);
+          mapCanvas.indicatorListDummy[2].value = roundToTwo(tsa.o3 / sensorList.length);
+          mapCanvas.indicatorListDummy[3].value = roundToTwo(tsa.temp / sensorList.length);
+          mapCanvas.indicatorListDummy[4].value = roundToTwo(tsa.humid / sensorList.length);
+
+          // sensorAvgValues.dust = tsa.dust / sensorList.length;
+          // sensorAvgValues.no2 = tsa.no2 / sensorList.length;
+          // sensorAvgValues.o3 = tsa.o3 / sensorList.length;
+          // sensorAvgValues.temp = tsa.temp / sensorList.length;
+          // sensorAvgValues.humid = tsa.humid / sensorList.length;
+
+          //sensorAvgValues = tsa;
+        }
+        
+        mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+      }
+    });
 }
 
-var mapCanvas = null;
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+}
 
 function getBusInfo(sensorId) {
-  for(let busInfo of sensor_bus) {
-    if(sensorId == busInfo.SensorId) {
+  for (let busInfo of sensor_bus) {
+    if (sensorId == busInfo.SensorId) {
       let bus = {
-        compName : busInfo.CompanyName,
-        routeNum : busInfo.RouteNumber,
-        busNum : busInfo.BusNumber
-      }
+        compName: busInfo.CompanyName,
+        routeNum: busInfo.RouteNumber,
+        busNum: busInfo.BusNumber,        
+      };
 
       return bus;
     }
@@ -168,7 +211,6 @@ function getBusInfo(sensorId) {
 
 //선과 점과의 거리를 구한다.
 function pDistance(x, y, x1, y1, x2, y2) {
-
   var A = x - x1;
   var B = y - y1;
   var C = x2 - x1;
@@ -177,20 +219,19 @@ function pDistance(x, y, x1, y1, x2, y2) {
   var dot = A * C + B * D;
   var len_sq = C * C + D * D;
   var param = -1;
-  if (len_sq != 0) //in case of 0 length line
-      param = dot / len_sq;
+  if (len_sq != 0)
+    //in case of 0 length line
+    param = dot / len_sq;
 
   var xx, yy;
 
   if (param < 0) {
     xx = x1;
     yy = y1;
-  }
-  else if (param > 1) {
+  } else if (param > 1) {
     xx = x2;
     yy = y2;
-  }
-  else {
+  } else {
     xx = x1 + param * C;
     yy = y1 + param * D;
   }
@@ -201,7 +242,6 @@ function pDistance(x, y, x1, y1, x2, y2) {
 }
 
 import ic_route from "../assets/icon/route_detail/off.svg";
-
 
 const IndicatorContainer = styled.div`
   position: fixed;
@@ -229,21 +269,21 @@ const ButtonToggleRoute = styled.button`
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  box-shadow: rgba(0,0,0,0.08) 0px 0px 16px;
-  ${props => props.theme.layout.flexColCenter}
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 16px;
+  ${(props) => props.theme.layout.flexColCenter}
   background-color: #fff;
-  img{
+  img {
     width: 24px;
     height: 24px;
   }
-;`
+`;
 
 const Test = styled.div`
   position: absolute;
   top: 200px;
   left: 600px;
   z-index: 4;
-  button{
+  button {
     width: 400px;
     height: 80px;
     background-color: #cc1122;
@@ -264,34 +304,34 @@ export default {
     BusRouteSlide,
     AlertNoticeModal,
     Test,
-    SubmitMsgModal
+    SubmitMsgModal,
   },
-  methods:{
-    togglePop (){
+  methods: {
+    togglePop() {
       this.isRoutePop = !this.isRoutePop;
     },
-    toggleAlertPop (){
+    toggleAlertPop() {
       this.isAlertNoticePop = !this.isAlertNoticePop;
     },
-    toggleSubmitMsgPop (){
+    toggleSubmitMsgPop() {
       this.isAlertNoticePop = false;
       this.isSubmitMsgPop = !this.isSubmitMsgPop;
     },
     getSensorData() {
-      requestData(this)
+      requestData(this);
     },
-  },  
-  created: function() {
+  },
+  created: function () {
     mapCanvas = this;
 
-    // setInterval(function() {
-    //   requestData(this)
-    //   console.log("request bus data");
-    // },10000)
-  }, 
+    setInterval(function() {
+      requestData(this)
+      console.log("request bus data");
+    },10000)
+  },
   data() {
     return {
-      sensorList : sensorList,
+      sensorList: sensorList,
       // IMG
       ic_route,
       // STATE,
@@ -306,7 +346,7 @@ export default {
           id: "dust",
           title: "초미세먼지",
           unit: "㎍/㎥",
-          value: 23,
+          value: sensorAvgValues.dust,
           img: ic_dust,
           isSelected: false,
         },
@@ -314,7 +354,7 @@ export default {
           id: "no2",
           title: "이산화질소(NO2)",
           unit: "ppm",
-          value: 0.012,
+          value: sensorAvgValues.no2,
           img: ic_no2,
           isSelected: false,
         },
@@ -322,7 +362,7 @@ export default {
           id: "o3",
           title: "오존(O3)",
           unit: "ppm",
-          value: 23,
+          value: sensorAvgValues.o3,
           img: ic_o3,
           isSelected: false,
         },
@@ -330,7 +370,7 @@ export default {
           id: "temp",
           title: "온도",
           unit: "°C",
-          value: 31,
+          value: sensorAvgValues.temp,
           img: ic_temp,
           isSelected: false,
         },
@@ -338,7 +378,7 @@ export default {
           id: "humid",
           title: "습도",
           unit: "%",
-          value: 23,
+          value: sensorAvgValues.humid,
           img: ic_humid,
           isSelected: false,
         },
@@ -350,33 +390,33 @@ export default {
           type: "초미세먼지",
           img: ic_dust,
           level: "주의보",
-          date: "20221-11-12  |  3:15:21pm"
+          date: "20221-11-12  |  3:15:21pm",
         },
-         {
+        {
           id: "dust",
           title: "초미세먼지 주의보 발령",
           type: "폭염",
           img: ic_temp,
           level: "주의보",
-          date: "20221-11-12  |  3:15:21pm"
+          date: "20221-11-12  |  3:15:21pm",
         },
-         {
+        {
           id: "dust",
           title: "오존 주의보 발령",
           type: "오존",
           img: ic_o3,
           level: "주의보",
-          date: "20221-11-12  |  3:15:21pm"
+          date: "20221-11-12  |  3:15:21pm",
         },
-         {
+        {
           id: "dust",
           title: "초미세먼지 주의보 발령",
           type: "초미세먼지",
           img: ic_dust,
           level: "주의보",
-          date: "20221-11-12  |  3:15:21pm"
+          date: "20221-11-12  |  3:15:21pm",
         },
-      ]
+      ],
     };
   },
 };

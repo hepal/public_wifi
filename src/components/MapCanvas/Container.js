@@ -6,8 +6,8 @@ const Container = styled('div',Props)`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  /*width: 100%;
+  height: 100%;*/
   background-image: ${props => `url(${props.bg})`};
   background-size: cover;
   background-color: ${props => props.color};
