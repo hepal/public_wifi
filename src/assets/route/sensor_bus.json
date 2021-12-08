@@ -1,0 +1,152 @@
+[
+  {
+    "SensorId": "DG242112019",
+    "CompanyName": "성보교통",
+    "RouteNumber": 623,
+    "BusNumber": 2455
+  },
+  {
+    "SensorId": "DG242112023",
+    "CompanyName": "관음교통",
+    "RouteNumber": 425,
+    "BusNumber": 3413
+  },
+  {
+    "SensorId": "DG242112024",
+    "CompanyName": "관음교통",
+    "RouteNumber": 425,
+    "BusNumber": 3444
+  },
+  {
+    "SensorId": "DG242112025",
+    "CompanyName": "관음교통",
+    "RouteNumber": 425,
+    "BusNumber": 3447
+  },
+  {
+    "SensorId": "DG242112001",
+    "CompanyName": "경북교통",
+    "RouteNumber": 805,
+    "BusNumber": 5062
+  },
+  {
+    "SensorId": "DG242112002",
+    "CompanyName": "경북교통",
+    "RouteNumber": 937,
+    "BusNumber": 5070
+  },
+  {
+    "SensorId": "DG242112003",
+    "CompanyName": "경북교통",
+    "RouteNumber": 937,
+    "BusNumber": 5099
+  },
+  {
+    "SensorId": "DG242112020",
+    "CompanyName": "세진교통",
+    "RouteNumber": 724,
+    "BusNumber": 2070
+  },
+  {
+    "SensorId": "DG242112021",
+    "CompanyName": "세진교통",
+    "RouteNumber": 724,
+    "BusNumber": 2096
+  },
+  {
+    "SensorId": "DG242112022",
+    "CompanyName": "세진교통",
+    "RouteNumber": 724,
+    "BusNumber": 2048
+  },
+  {
+    "SensorId": "DG242112012",
+    "CompanyName": "세왕교통",
+    "RouteNumber": 240,
+    "BusNumber": 2224
+  },
+  {
+    "SensorId": "DG242112004",
+    "CompanyName": "동명교통",
+    "RouteNumber": 730,
+    "BusNumber": 2626
+  },
+  {
+    "SensorId": "DG242112005",
+    "CompanyName": "동명교통",
+    "RouteNumber": 730,
+    "BusNumber": 2629
+  },
+  {
+    "SensorId": "DG242112006",
+    "CompanyName": "동명교통",
+    "RouteNumber": 730,
+    "BusNumber": 2645
+  },
+  {
+    "SensorId": "DG242112016",
+    "CompanyName": "영진교통",
+    "RouteNumber": 523,
+    "BusNumber": 2317
+  },
+  {
+    "SensorId": "DG242112017",
+    "CompanyName": "영진교통",
+    "RouteNumber": 523,
+    "BusNumber": 2323
+  },
+  {
+    "SensorId": "DG242112018",
+    "CompanyName": "영진교통",
+    "RouteNumber": 523,
+    "BusNumber": 2346
+  },
+  {
+    "SensorId": "DG242112007",
+    "CompanyName": "우주교통",
+    "RouteNumber": 937,
+    "BusNumber": 3152
+  },
+  {
+    "SensorId": "DG242112008",
+    "CompanyName": "우주교통",
+    "RouteNumber": 937,
+    "BusNumber": 3153
+  },
+  {
+    "SensorId": "DG242112013",
+    "CompanyName": "경신교통",
+    "RouteNumber": 523,
+    "BusNumber": 2508
+  },
+  {
+    "SensorId": "DG242112014",
+    "CompanyName": "경신교통",
+    "RouteNumber": 523,
+    "BusNumber": 2509
+  },
+  {
+    "SensorId": "DG242112015",
+    "CompanyName": "경신교통",
+    "RouteNumber": 523,
+    "BusNumber": 2563
+  },
+  {
+    "SensorId": "DG242112009",
+    "CompanyName": "신흥버스",
+    "RouteNumber": 503,
+    "BusNumber": 1111
+  },
+  {
+    "SensorId": "DG242112010",
+    "CompanyName": "신흥버스",
+    "RouteNumber": 503,
+    "BusNumber": 1142
+  },
+  {
+    "SensorId": "DG242112011",
+    "CompanyName": "신흥버스",
+    "RouteNumber": 503,
+    "BusNumber": 1157
+  }
+]

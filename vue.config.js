@@ -11,6 +11,10 @@ module.exports = {
     "vuetify"
   ],
 
+  devServer: {
+    proxy: 'http://210.90.145.70:12000',
+  },
+
   configureWebpack: {
 
     plugins: [

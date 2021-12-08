@@ -46,8 +46,10 @@ import ic_humid from "../assets/icon/indicator/humid.svg";
 import ic_no2 from "../assets/icon/indicator/no2.svg";
 import ic_o3 from "../assets/icon/indicator/o3.svg";
 import ic_temp from "../assets/icon/indicator/temp.svg";
+//센서-버스 매칭
+import sensor_bus from '../assets/route/sensor_bus.json'
 
-var jsonData = {
+var jsonBusData = {
   requestSensorData : {
     beginYear: 2021,
     beginMonth: 12,
@@ -63,7 +65,18 @@ var sensorList = [];
 
 //sensor 값을 가져온다.
 function requestData(home) {
-  axios.post('https://cors-anywhere.herokuapp.com/http://210.90.145.70:12000/Sensor',JSON.stringify(jsonData),
+
+  var date = new Date();
+
+  jsonBusData.beginYear = date.getFullYear();
+  jsonBusData.beginMonth = date.getMonth() + 1; //0~11
+  jsonBusData.beginDay = date.getDate();
+  jsonBusData.endYear = jsonBusData.beginYear;
+  jsonBusData.endMonth = jsonBusData.beginMonth;
+  jsonBusData.endDay = jsonBusData.beginDay;
+
+  //axios.post('http://210.90.145.70:12000/Sensor',JSON.stringify(jsonBusData),
+  axios.post('/Sensor',JSON.stringify(jsonBusData),
       {headers: { 'Content-Type': 'application/json'} })
       .then(function(response) {
         if(response.status == 200) {
@@ -85,9 +98,37 @@ function requestData(home) {
 
           sensorList = tempSensorList;
 
-          home.$refs.mapCanvas.updateSensors(sensorList);
+          for(let sensor of sensorList) {
+            let busInfo = getBusInfo(sensor.serno);
+
+            if(null != busInfo) {
+              console.log(busInfo);
+            } else {
+              console.log("%s not exist",sensor.serno);
+            }
+          }
+
+          mapCanvas.$refs.mapCanvas.updateSensors(sensorList);
         }
       });      
+}
+
+var mapCanvas = null;
+
+function getBusInfo(sensorId) {
+  for(let busInfo of sensor_bus) {
+    if(sensorId == busInfo.SensorId) {
+      let bus = {
+        compName : busInfo.CompanyName,
+        routeNum : busInfo.RouteNumber,
+        busNum : busInfo.BusNumber
+      }
+
+      return bus;
+    }
+  }
+
+  return null;
 }
 
 //선과 점과의 거리를 구한다.
@@ -151,6 +192,14 @@ export default {
     getSensorData() {
       requestData(this)
     },
+  },
+  created: function() {
+    mapCanvas = this;
+
+    // setInterval(function() {
+    //   requestData(this)
+    //   console.log("request bus data");
+    // },10000)
   },
   data() {
     return {
