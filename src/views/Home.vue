@@ -162,9 +162,9 @@ function requestData(home) {
 
             activeSensorList.push(activeSensor);
 
-            console.log(busInfo);
+            console.log("노선:%d 버스:%d 센서ID:%s 먼지:%f 이산화질소:%f 오존:%f 온도:%f 습도:%f 위도:%f 경도:%f",busInfo.routeNum,busInfo.busNum,sensor.serno,sensor.pm2_5,sensor.no2,sensor.o3,sensor.temp,sensor.humi,sensor.lat,sensor.lon);
           } else {
-            console.log("%s not exist", sensor.serno);
+            console.log("%s 센서는 연계된 버스 없음", sensor.serno);
           }
         }
 

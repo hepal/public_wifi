@@ -88,7 +88,7 @@ import Container from "./Container";
 // 맵 영역 표시용 더미 이미지
 import map_bg_dummy from "../../assets/dummy/map_bg_mono.jpg";
 import styled from "vue-styled-components";
-import bus_route from "../../assets/route/bus_all.json";
+import bus_route from "../../assets/route/BUS_ALL_12_09.json";
 import proj4 from "proj4/dist/proj4";
 import HashMap from "hashmap";
 //import mssql from 'mssql'
