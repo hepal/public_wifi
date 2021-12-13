@@ -1,5 +1,29 @@
 <template>
-  <Container :bg="currentMapStyle==='mono'?map_bg_dummy_mono:map_bg_dummy_satellite">
+  <Container
+    :bg="
+      currentMapStyle === 'mono' ? map_bg_dummy_mono : map_bg_dummy_satellite
+    "
+  >
+    <!-- Information -->
+    <BusEntity
+      v-for="(bus,index) in busDataDummy"
+      :key="index"
+      :number="bus.number"
+      :x="bus.location.x"
+      :y="bus.location.y"
+    />
+    <LocationInfoEntity
+      v-for="(location, index) in locationInfoDataDummy"
+      :key="index"
+      :title="location.title"
+      :dust="location.dust"
+      :no2="location.no2"
+      :o3="location.o3"
+      :temperature="location.temperature"
+      :humid="location.temperature"
+      :x="location.location.x"
+      :y="location.location.y"
+    />
     <MapControlled>
       <button>
         <img :src="ic_refresh" alt="" />
@@ -21,16 +45,20 @@
           :bg="img_map_style_mono"
           v-on:click="
             isMapStylerSelected = !isMapStylerSelected;
-            currentMapStyle='mono';
+            currentMapStyle = 'mono';
           "
-        > <span>모노크롬</span> </ButtonMap>
+        >
+          <span>모노크롬</span>
+        </ButtonMap>
         <ButtonMap
           :bg="img_map_style_satellite"
           v-on:click="
             isMapStylerSelected = !isMapStylerSelected;
-            currentMapStyle='satellite';
+            currentMapStyle = 'satellite';
           "
-        > <span>위성</span> </ButtonMap>
+        >
+          <span>위성</span>
+        </ButtonMap>
       </Wrapper>
     </MapStyleSelector>
   </Container>
@@ -38,6 +66,9 @@
 <script>
 import styled from "vue-styled-components";
 import Container from "./Container";
+import LocationInfoEntity from "@/components/LocationInfoEntity/LocationInfoEntity";
+import BusEntity from "@/components/BustEntity/BusEntity";
+
 // 맵 영역 표시용 더미 이미지
 import map_bg_dummy_mono from "../../assets/dummy/map_bg_mono.jpg";
 import map_bg_dummy_satellite from "../../assets/dummy/map_bg_satellite.jpg";
@@ -162,6 +193,8 @@ export default {
     MapStyleSelector,
     ButtonMap,
     Wrapper,
+    LocationInfoEntity,
+    BusEntity
   },
   data() {
     return {
@@ -174,7 +207,80 @@ export default {
       img_map_style_mono,
       img_map_style_satellite,
       isMapStylerSelected: false,
-      currentMapStyle: 'mono', // 'monoe' || 'satellite' 
+      currentMapStyle: "mono", // 'monoe' || 'satellite'
+      busDataDummy: [
+        {
+          number: 523,
+          location: {
+            x: 400,
+            y: 340,
+          },
+        },
+        {
+          number: 523,
+          location: {
+            x: 600,
+            y: 540,
+          },
+        },
+        {
+          number: 523,
+          location: {
+            x: 250,
+            y: 580,
+          },
+        },
+      ],
+      locationInfoDataDummy: [
+        {
+          locationName: "대구광역시 OOO동",
+          dust: 0.001,
+          no2: 0.012,
+          o3: 0.01,
+          temperature: 34,
+          humid: 65,
+          location: {
+            x: 500,
+            y: 240,
+          },
+        },
+        {
+          locationName: "대구광역시 OOO동",
+          dust: 0.001,
+          no2: 0.012,
+          o3: 0.01,
+          temperature: 34,
+          humid: 65,
+          location: {
+            x: 900,
+            y: 180,
+          },
+        },
+        {
+          locationName: "대구광역시 OOO동",
+          dust: 0.001,
+          no2: 0.012,
+          o3: 0.01,
+          temperature: 34,
+          humid: 65,
+          location: {
+            x: 600,
+            y: 480,
+          },
+        },
+        {
+          locationName: "대구광역시 OOO동",
+          dust: 0.001,
+          no2: 0.012,
+          o3: 0.01,
+          temperature: 34,
+          humid: 65,
+          location: {
+            x: 120,
+            y: 560,
+          },
+        },
+      ],
     };
   },
 };

@@ -1,32 +1,39 @@
 <template>
   <Container :isPop="isPop">
-    <button v-on:click="togglePop" class="close">✕</button>
-    <h3>버스 노선 현황 정보</h3>
-    <SectionRow>
-      <CheckContainer v-for="(route, index) in busRouteList" :key="index">
-        <input
-          type="checkbox"
-          :id="route.number"
-          :value="route.number"
-          v-model="checkedNames"
-        />
-        <label :for="route.number">
-          {{ `${route.number}` }}
-        </label>
-      </CheckContainer>
-    </SectionRow>
-    <MeasureTime>
-      <div>
-        측정시간: <span>{{ measureTime }}</span>
-      </div>
-      <button>
-        <img :src="ic_refrsh" alt="" />
-      </button>
-    </MeasureTime>
-    <TableSection>
+    <Section ref="top">
+      <button v-on:click="togglePop" class="close">✕</button>
+      <h3>버스 노선 현황 정보</h3>
+      <SectionRow>
+        <CheckContainer v-for="(route, index) in busRouteList" :key="index">
+          <input
+            type="checkbox"
+            :id="route.number"
+            :value="route.number"
+            v-model="checkedNames"
+          />
+          <label :for="route.number">
+            {{ `${route.number}` }}
+          </label>
+        </CheckContainer>
+      </SectionRow>
+      <MeasureTime>
+        <div>
+          측정시간: <span>{{ measureTime }}</span>
+        </div>
+        <button>
+          <img :src="ic_refrsh" alt="" />
+        </button>
+      </MeasureTime>
+    </Section>
+    <TableSection
+      :topHeight="topHeight"
+      :bottomHeight="bottomHeight"
+    >
       <KeyIndicatorTable :tableData="routeDataDummyList" />
     </TableSection>
-    <LegendIndicator> </LegendIndicator>
+    <Section ref="bottom">
+      <LegendIndicator />
+    </Section>
   </Container>
 </template>
 <script>
@@ -66,6 +73,10 @@ const Container = styled("div", ContainerProps)`
     ${(props) => props.theme.layout.flexColCenter}
     font-size: 20px;
   }
+`;
+
+const Section = styled.div`
+  width: 100%;
 `;
 
 const MeasureTime = styled.div`
@@ -110,11 +121,18 @@ const CheckContainer = styled.div`
   }
 `;
 
-const TableSection = styled.div`
+const TableSectioProps = {
+  topHeight: String,
+  bottomHeight: String
+};
+
+const TableSection = styled('div',TableSectioProps)`
   width: 100%;
-  height: calc(48px * 8);
+  height: ${props => `calc(100% - ${props.topHeight} - ${props.bottomHeight} - 96px - 24px - 24px)`};
   overflow-y: auto;
-  margin-bottom: 48px;
+  table{
+    margin-bottom: 48px;
+  }
   td,
   th,
   tr {
@@ -127,12 +145,18 @@ export default {
   name: "BusRouteSlide",
   components: {
     Container,
+    Section,
     MeasureTime,
     SectionRow,
     TableSection,
     KeyIndicatorTable,
     LegendIndicator,
     CheckContainer,
+  },
+  mounted() {
+    console.log(this.$refs.top.$el.clientHeight);
+    this.topHeight = this.$refs.top.$el.clientHeight + 'px';
+    this.bottomHeight = this.$refs.bottom.$el.clientHeight + 'px';
   },
   data() {
     return {
@@ -142,6 +166,8 @@ export default {
       ic_refrsh,
       checkedNames: ["모두 선택"],
       measureTime: "2021-10-21  13:11:29",
+      topHeight: null,
+      bottomHeight: null,
       busRouteList: [
         {
           number: "모두 선택",
@@ -290,7 +316,7 @@ export default {
   },
   props: {
     isPop: Boolean,
-    togglePop: Function
+    togglePop: Function,
   },
   methods: {
     levelValidator(value, type) {
