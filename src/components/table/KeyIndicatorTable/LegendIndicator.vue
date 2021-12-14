@@ -48,6 +48,10 @@ const legendList = [
 
 const Container = styled.div`
   width: 100%;
+  @media only screen and (max-width: 480px) {
+    padding: 12px;
+    width: calc(100% - 24px);
+  }
 `;
 
 const List = styled.div`

@@ -42,7 +42,43 @@ const Container = styled.div`
     left:0;
     width: 8px;
     height: 100%;
-    background-color: ${props => props.isSelected?props.theme.color.ui.selected:props.theme.color.ui.enabled};
+    background-color: ${props => props.isSelected ? props.theme.color.ui.selected : props.theme.color.ui.enabled};
+  }
+  @media only screen and (max-width: 480px) {
+    width: calc((100% - 32px)/5);
+    margin-right: 0px;
+    height: 116px;
+    padding: 4px;
+    flex-direction: column;
+    justify-content: space-between;
+    .top{
+      font-size: 10px !important;
+      flex-direction: column;
+      margin-bottom: 24px;
+      text-align: center;
+      img{
+        width: 24px;
+        height: 24px;
+      }
+    }
+    .bottom{
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .value{
+        font-size: 20px;
+        font-weight: 900;
+      }
+    }
+    :before{
+      position: absolute;
+      content: '';
+      bottom:0;
+      left:0;
+      width: 100%;
+      height: 4px;
+      background-color: ${props => props.isSelected ? props.theme.color.ui.selected : props.theme.color.ui.enabled};
+    }
   }
 `;
 

@@ -101,6 +101,10 @@ const MapControlled = styled.div`
       height: 24px;
     }
   }
+  @media only screen and (max-width: 480px) {
+    right: 12px;
+    bottom: 148px;
+  }
 `;
 
 const SelectorProps = { isSelected: Boolean };
@@ -140,6 +144,10 @@ const MapStyleSelector = styled("div", SelectorProps)`
       left: 0;
       bottom: 8px;
     }
+  }
+  @media only screen and (max-width: 480px) {
+    left: 12px;
+    bottom: 148px;
   }
 `;
 const Wrapper = styled.div`

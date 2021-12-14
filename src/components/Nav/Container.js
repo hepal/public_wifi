@@ -1,7 +1,9 @@
 import styled from 'vue-styled-components';
 
 const Container = styled.div`
-  position: relative;
+  position: fixed;
+  top:0;
+  left:0;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -33,6 +35,9 @@ const Container = styled.div`
     img{
       margin:0 !important;
     }
+  }
+  @media only screen and (max-width: 480px) {
+    display: none;
   }
 `;
 

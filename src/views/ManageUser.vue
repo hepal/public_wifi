@@ -50,7 +50,7 @@ const Conainer = styled.div`
   width: calc(100% - 140px - 32px);
   height: 100%;
   padding: 32px;
-  padding-top: 64px;
+  padding-top: 96px;
   padding-left: 156px;
   text-align: left;
 `;

@@ -25,10 +25,7 @@
         </button>
       </MeasureTime>
     </Section>
-    <TableSection
-      :topHeight="topHeight"
-      :bottomHeight="bottomHeight"
-    >
+    <TableSection :topHeight="topHeight" :bottomHeight="bottomHeight">
       <KeyIndicatorTable :tableData="routeDataDummyList" />
     </TableSection>
     <Section ref="bottom">
@@ -72,6 +69,17 @@ const Container = styled("div", ContainerProps)`
     color: ${(props) => props.theme.color.ui.middle2};
     ${(props) => props.theme.layout.flexColCenter}
     font-size: 20px;
+  }
+  @media only screen and (max-width: 480px) {
+    padding-top: 32px;
+    left: ${(props) => (props.isPop ? "0px" : "-728px")};
+    width: calc(100% - 32px);
+    padding: 16px;
+    overflow-y: overlay;
+    button.close {
+      top: 12px;
+      right: 12px;
+    }
   }
 `;
 
@@ -119,18 +127,22 @@ const CheckContainer = styled.div`
   input {
     margin-right: 12px;
   }
+  @media only screen and (max-width: 480px) {
+    width: 33%;
+  }
 `;
 
 const TableSectioProps = {
   topHeight: String,
-  bottomHeight: String
+  bottomHeight: String,
 };
 
-const TableSection = styled('div',TableSectioProps)`
+const TableSection = styled("div", TableSectioProps)`
   width: 100%;
-  height: ${props => `calc(100% - ${props.topHeight} - ${props.bottomHeight} - 96px - 24px - 24px)`};
+  height: ${(props) =>
+    `calc(100% - ${props.topHeight} - ${props.bottomHeight} - 96px - 24px - 24px)`};
   overflow-y: auto;
-  table{
+  table {
     margin-bottom: 48px;
   }
   td,
@@ -138,6 +150,9 @@ const TableSection = styled('div',TableSectioProps)`
   tr {
     padding: 0px !important;
     text-align: center !important;
+  }
+  @media only screen and (max-width: 480px) {
+    height: 480px;
   }
 `;
 
@@ -155,8 +170,8 @@ export default {
   },
   mounted() {
     console.log(this.$refs.top.$el.clientHeight);
-    this.topHeight = this.$refs.top.$el.clientHeight + 'px';
-    this.bottomHeight = this.$refs.bottom.$el.clientHeight + 'px';
+    this.topHeight = this.$refs.top.$el.clientHeight + "px";
+    this.bottomHeight = this.$refs.bottom.$el.clientHeight + "px";
   },
   data() {
     return {
