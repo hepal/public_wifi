@@ -52,10 +52,10 @@ const Title = styled.div`
 `;
 const ColorProps = { value: String };
 const Color = styled("div", ColorProps)`
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  margin-right: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-right: 8px;
   background-color: ${(props) =>
     props.value === "good"
       ? props.theme.color.level.normal

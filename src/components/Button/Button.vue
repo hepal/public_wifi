@@ -35,7 +35,7 @@ const Container = styled('button',ButtonProps)`
   img{
     width: 24px;
     height: 24px;
-    margin-left: 16px;
+    margin-right: 16px;
   }
 `;
 

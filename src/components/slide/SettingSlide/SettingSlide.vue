@@ -85,9 +85,13 @@ const CheckContainer = styled.div`
 
 const TableSection = styled.div`
   width: 100%;
-  height: calc(48px * 12);
+  height: auto;
+  max-height: calc(48px * 12);
   overflow-y: auto;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
+  table{
+    margin-bottom: 0px !important;
+  }
   td,
   th,
   tr {

@@ -11,8 +11,8 @@
         <input v-model="search_id" placeholder="아이디를 입력해주세요" />
       </TextField>
       <Button type="PrimaryFilled">
-        사용자 검색
         <img :src="ic_search" alt="" />
+        사용자 검색
       </Button>
     </Top>
     <h3>검색결과 7건</h3>

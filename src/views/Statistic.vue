@@ -7,12 +7,12 @@
         <div class="container">
           <div class="radio" v-for="(sensor, index) in sensorList" :key="index">
             <input
+              :id="sensor.id"
               type="radio"
               v-model="selectedSensor"
-              :id="sensor.title"
-              :value="sensor.title"
+              :value="sensor.id"
             />
-            <label :for="sensor.title"> {{ sensor.title }} </label>
+            <label :for="sensor.id"> {{ sensor.title }} </label>
           </div>
         </div>
       </Section>
@@ -22,7 +22,7 @@
           <div class="radio" v-for="(type, index) in dataTypeList" :key="index">
             <input
               type="radio"
-              v-model="selectedSensor"
+              v-model="selectedDataType"
               :id="type.title"
               :value="type.title"
             />
@@ -30,9 +30,18 @@
           </div>
         </div>
       </SectionSmall>
-      <Button type="PrimaryFilled">
-        조회
+      <SectionTiny>
+        <label> 날짜 선택 </label>
+        <div class="container">
+           <datepicker :value="state.date" :language="ko"></datepicker>
+        </div>
+      </SectionTiny>
+      <Button
+         :onClick="()=>{}"
+        type="PrimaryFilled"
+      >
         <img :src="ic_search" alt="" />
+        조회
       </Button>
     </Top>
     <h3>검색결과 7건</h3>
@@ -46,7 +55,10 @@
       <SensorTableText :tableData="sensorDataDummy" />
     </TableContainer>
     <ActionBar>
-      <Button type="GrayOutlined"> 엑셀 다운로드 </Button>
+      <Button 
+        :onClick="()=>{}"
+        type="GrayOutlined"
+      ><img :src="ic_download" alt='' />엑셀 다운로드</Button>
     </ActionBar>
     <!-- 팝업 -->
     <DeleteUserModal v-if="is_delete_pop" :onClose="toggleDeletePop" />
@@ -59,7 +71,12 @@ import ic_search from "../assets/icon/search/white.svg";
 import DeleteUserModal from "@/components/Modal/DeleteUserModal/DeleteUserModal";
 import SensorTableText from "@/components/table/SensorTableText/SensorTableText";
 import { D3LineChart } from "vue-d3-charts";
+
 import jsonQurty from "json-query";
+import Datepicker from 'vuejs-datepicker';
+import {ko} from 'vuejs-datepicker/dist/locale'
+import ic_download from '../assets/icon/download.svg';
+
 
 const Conainer = styled.div`
   width: calc(100% - 140px - 32px);
@@ -136,6 +153,54 @@ const SectionSmall = styled.div`
   }
 `;
 
+const SectionTiny = styled.div`
+  width: 120px;
+  margin-right: 24px;
+  display: flex;
+  flex-direction: column;
+  .vdp-datepicker{
+    height: 100%;
+    div{
+      /* height: 100%; */
+    }
+  }
+  header{
+    border: none !important;
+  }
+  .selected{
+    background-color: ${props => props.theme.color.brand.primary700} !important;
+    color: #fff !important;
+    border-radius: 50%;
+  }
+  .vdp-datepicker__calendar{
+    background-color: #ffffff;
+    /* height: 700px !important; */
+  }
+  .cell{
+    background-color: #ffffff;
+  }
+  .cell:hover{
+    border: solid 2px ${props => props.theme.color.brand.primary700} !important;
+  }
+  input{
+    width: 100%;
+    border: none;
+    height: 48px;
+    cursor: pointer;
+    outline: none;
+  }
+  .container {
+    height: 48px;
+    width: 100%;
+    padding-left: 8px;
+    margin-top: 8px;
+    border: solid 0.5px ${(props) => props.theme.color.ui.low};
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+`;
+
 const Chart = styled.div`
   width: 100%;
   height: 320px;
@@ -145,14 +210,18 @@ const ActionBar = styled.div`
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 32px;
 `;
 
 const TableContainer = styled.div`
   width: 100%;
-  height: 240px;
+  height: 320px;
   overflow-y: overlay;
 `;
+
+const state = {
+  date: new Date()
+}
 
 export default {
   name: "Statistic",
@@ -168,6 +237,8 @@ export default {
     SensorTableText,
     Chart,
     D3LineChart,
+    Datepicker,
+    SectionTiny
   },
   data() {
     return {
@@ -175,26 +246,35 @@ export default {
       search_name: null,
       search_id: null,
       is_delete_pop: false,
-      selectedSensor: null,
+      selectedSensor: '',
+      selectedDataType: null,
+      state,
+      ko:ko,
+      ic_download,
       sensorList: [
         {
           title: "초미세먼지",
+          id:"dust",
           isSelected: false,
         },
         {
           title: "이산화질소",
+          id:"no2",
           isSelected: false,
         },
         {
           title: "오존",
+          id:"o3",
           isSelected: false,
         },
         {
           title: "온도",
+          id:"temperature",
           isSelected: false,
         },
         {
           title: "습도",
+          id:"humid",
           isSelected: false,
         },
       ],
