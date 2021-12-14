@@ -59,6 +59,7 @@ import ic_search from "../assets/icon/search/white.svg";
 import DeleteUserModal from "@/components/Modal/DeleteUserModal/DeleteUserModal";
 import SensorTableText from "@/components/table/SensorTableText/SensorTableText";
 import { D3LineChart } from "vue-d3-charts";
+import jsonQurty from "json-query";
 
 const Conainer = styled.div`
   width: calc(100% - 140px - 32px);

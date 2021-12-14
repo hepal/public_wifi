@@ -91,6 +91,8 @@ import styled from "vue-styled-components";
 import bus_route from "../../assets/route/BUS_ALL_12_09.json";
 import proj4 from "proj4/dist/proj4";
 import HashMap from "hashmap";
+import axios from "axios";
+
 //import mssql from 'mssql'
 //const sql = require("msnodesqlv8");
 //var mssql = require('mssql').default;
@@ -159,6 +161,8 @@ var bus_pois = [];
 var bus_lables = [];
 
 var facilityUrl = "./images/bus.png";
+
+var route_file_name = "./Assets/Routes/bus_route_sensor_15.json";
 
 function createSampleBusRoute() {
   let linePosString =
@@ -232,6 +236,24 @@ function _updateSensors(viewer, sensorList) {
     });
     bus_pois.push(poi);
   }
+}
+
+function _updateRouteInfo(viewer) {
+  axios.defaults.headers = {
+  'Cache-Control': 'no-cache',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+  };
+
+  axios.get(route_file_name).then(function(response) {
+    console.log(response);
+  });
+
+  // let features = bus_route["features"];
+
+  // for (let i = 0; i < features.length; i++) {
+    
+  // }
 }
 
 
@@ -373,6 +395,9 @@ export default {
     updateSensors(sensorList) {
       _updateSensors(this.viewer, sensorList);
     },
+    updateRoute() {
+      _updateRouteInfo(this.viewer);
+    }
   },
 
   created() {
@@ -382,6 +407,7 @@ export default {
 
   mounted() {
     console.log("Map mounted.");
+    
     // let x = bus_route["features"][0]['geometry']['coordinates'][0][0];
     // console.log(x);
     // let y = bus_route["features"][0]['geometry']['coordinates'][0][1];
@@ -429,11 +455,11 @@ export default {
       false
     );
 
-    var bing = new BingMapsImageryProvider({
-      url: "https://dev.virtualearth.net",
-      key: "AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr",
-      mapStyle: BingMapsStyle.ROAD_ON_DEMAND,
-    });
+    // var bing = new BingMapsImageryProvider({
+    //   url: "https://dev.virtualearth.net",
+    //   key: "AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr",
+    //   mapStyle: BingMapsStyle.ROAD_ON_DEMAND,
+    // });
 
     // var layers = this.viewer.scene.imageryLayers;
     // layers.addImageryProvider(bing);
@@ -446,7 +472,7 @@ export default {
     });
 
     var layers = this.viewer.scene.imageryLayers;
-    var layer = layers.addImageryProvider(bing);
+    var layer = layers.addImageryProvider(osm);
     layer.saturation = 0.1;
 
     this.viewer.camera.flyTo({

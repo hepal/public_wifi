@@ -2,7 +2,7 @@
   <div class="home">
     <!-- 맵 캔버스 -->
     <MapCanvas ref="mapCanvas"> </MapCanvas>
-    <!-- 버르 루트정보 FAB -->
+    <!-- 버스 루트정보 FAB -->
     <ButtonToggleRoute v-on:click="isRoutePop = !isRoutePop">
       <img :src="ic_route" alt="" />
     </ButtonToggleRoute>
@@ -11,7 +11,7 @@
     <!-- 주요 기상정보 지표 컨테이너 -->
     <IndicatorContainer>
       <CardIndicator
-        v-on:requestSensorData="getSensorData"
+        v-on:requestSensorData="getRouteData"
         v-for="(indicator, index) in indicatorListDummy"
         :sensoeId="indicator.id"
         :key="index"
@@ -83,6 +83,7 @@ var jsonBusData = {
 };
 
 var sensorMap = new HashMap();
+var routeMap = new HashMap();
 var sensorList = [];
 var mapCanvas = null;
 
@@ -93,6 +94,14 @@ var sensorAvgValues = {
    temp : 31,
    humid : 35,
 };
+
+//route 값을 가져온다.
+function requestRouteData(home) {
+  if(null != mapCanvas.$refs.mapCanvas || undefined != mapCanvas.$refs.mapCanvas) {
+     mapCanvas.$refs.mapCanvas.updateRoute();
+  }
+}
+
 
 //sensor 값을 가져온다.
 function requestData(home) {
@@ -164,7 +173,7 @@ function requestData(home) {
 
             console.log("노선:%d 버스:%d 센서ID:%s 먼지:%f 이산화질소:%f 오존:%f 온도:%f 습도:%f 위도:%f 경도:%f",busInfo.routeNum,busInfo.busNum,sensor.serno,sensor.pm2_5,sensor.no2,sensor.o3,sensor.temp,sensor.humi,sensor.lat,sensor.lon);
           } else {
-            console.log("%s 센서는 연계된 버스 없음", sensor.serno);
+            console.log("%s 센서가 연계된 버스 없음", sensor.serno);
           }
         }
 
@@ -184,7 +193,9 @@ function requestData(home) {
           //sensorAvgValues = tsa;
         }
         
-        mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+        if(null != mapCanvas.$refs.mapCanvas || undefined != mapCanvas.$refs.mapCanvas) {
+          mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+        }
       }
     });
 }
@@ -320,6 +331,9 @@ export default {
     getSensorData() {
       requestData(this);
     },
+    getRouteData() {
+      requestRouteData(this);
+    }
   },
   created: function () {
     mapCanvas = this;
