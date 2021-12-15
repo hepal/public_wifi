@@ -9,7 +9,7 @@
             type="checkbox"
             :id="route.number"
             :value="route.number"
-            v-model="checkedNames"
+            v-model="checkedNames"            
           />
           <label :for="route.number">
             {{ `${route.number}` }}
@@ -20,7 +20,7 @@
         <div>
           측정시간: <span>{{ measureTime }}</span>
         </div>
-        <button>
+        <button v-on:click="requestBusData()">
           <img :src="ic_refrsh" alt="" />
         </button>
       </MeasureTime>
@@ -38,9 +38,18 @@ import styled from "vue-styled-components";
 import { TYPE, CODE, SCALE } from "../../../globalConst/indicatorCode";
 import KeyIndicatorTable from "@/components/table/KeyIndicatorTable/KeyIndicatorTable";
 import LegendIndicator from "@/components/table/KeyIndicatorTable/LegendIndicator";
+import axios from "axios";
+import HashMap from "hashmap";
 
 // Assets
 import ic_refrsh from "../../../assets/icon/action/refresh.svg";
+//센서-버스 매칭
+import sensor_bus from "../../../assets/route/sensor_bus.json";
+
+var sensorMap = new HashMap();
+var sensorList = [];
+var routeSlide = null;
+var checkedRouteNumbers = [];
 
 const ContainerProps = { isPop: Boolean };
 
@@ -156,6 +165,33 @@ const TableSection = styled("div", TableSectioProps)`
   }
 `;
 
+function roundToTwo(num) {
+  return +(Math.round(num + "e+2") + "e-2");
+}
+
+function getBusInfo(sensorId) {
+  for (let busInfo of sensor_bus) {
+    if (sensorId == busInfo.SensorId) {
+      let bus = {
+        compName: busInfo.CompanyName,
+        routeNum: busInfo.RouteNumber,
+        busNum: busInfo.BusNumber,
+      };
+
+      return bus;
+    }
+  }
+
+  return null;
+}
+
+function format() {
+  var args = Array.prototype.slice.call(arguments, 1);
+  return arguments[0].replace(/\{(\d+)\}/g, function (match, index) {
+    return args[index];
+  });
+}
+
 export default {
   name: "BusRouteSlide",
   components: {
@@ -167,6 +203,9 @@ export default {
     KeyIndicatorTable,
     LegendIndicator,
     CheckContainer,
+  },
+  created() {
+    routeSlide = this;
   },
   mounted() {
     console.log(this.$refs.top.$el.clientHeight);
@@ -186,48 +225,58 @@ export default {
       busRouteList: [
         {
           number: "모두 선택",
+          value: -1,
           isCheck: true,
         },
         {
           number: "240번",
+          value: 240,
           isCheck: false,
         },
         {
           number: "425번",
+          value: 425,
           isCheck: false,
         },
         {
           number: "503번",
+          value: 503,
           isCheck: false,
         },
         {
           number: "523번",
+          value: 523,
           isCheck: false,
         },
         {
           number: "623번",
+          value: 623,
           isCheck: false,
         },
         {
           number: "724번",
+          value: 724,
           isCheck: false,
         },
         {
           number: "730번",
+          value: 730,
           isCheck: false,
         },
         {
           number: "805번",
+          value: 805,
           isCheck: false,
         },
         {
           number: "937번",
+          value: 937,
           isCheck: false,
         },
       ],
       routeDataDummyList: {
         header: [
-          "차량번호\n ",
+          "차량번호(노선번호)\n ",
           "초미세먼지\n(㎍/㎥)",
           "이산화질소\n(ppm)",
           "오존\n(ppm)",
@@ -333,7 +382,16 @@ export default {
     isPop: Boolean,
     togglePop: Function,
   },
-  methods: {
+  watch: {
+    checkedNames: function(val) {
+      checkedRouteNumbers = [];
+
+      for(let v of val) {
+        checkedRouteNumbers.push(v.replace('번',''));
+      }      
+    }
+  },
+  methods: {    
     levelValidator(value, type) {
       if (type === TYPE.DUST || type === TYPE.NO2 || type === TYPE.O3) {
         if (value < SCALE[type][1]) return CODE.GOOD;
@@ -343,6 +401,151 @@ export default {
       } else {
         return CODE.NONE;
       }
+    },
+    requestBusData() {
+      let date = new Date();
+
+      let jsonBusData = {
+        requestSensorData: {
+          beginYear: date.getFullYear(),
+          beginMonth: date.getMonth() + 1,
+          beginDay: date.getDate(),
+          beginHour: date.getHours(),
+          endYear: date.getFullYear(),
+          endMonth: date.getMonth() + 1,
+          endDay: date.getDate(),
+          endHour: date.getHours(),
+        },
+      };
+
+      console.log("request bus data");
+      axios
+        .post("/Sensor", JSON.stringify(jsonBusData), {
+          headers: { "Content-Type": "application/json" },
+        })
+        .then(function (response) {
+          if (response.status == 200) {
+            sensorMap.clear();
+            console.log(response);
+
+            for (let i of response.data.sensorDatas) {
+              if (30 < i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
+                sensorMap.set(i.serno, i);
+              }
+            }
+
+            let tempSensorList = [];
+            sensorMap.forEach(function (value, key) {
+              console.log(
+                "%s,%s,%f,%f",
+                key,
+                value.regdate,
+                value.lat,
+                value.lon
+              );
+              tempSensorList.push(value);
+            });
+
+            sensorList = tempSensorList;
+
+            let tsa = {
+              dust: 0,
+              no2: 0,
+              o3: 0,
+              temp: 0,
+              humid: 0,
+            };
+
+            let activeSensorList = [];
+            for (let sensor of sensorList) {
+              let busInfo = getBusInfo(sensor.serno);
+
+              tsa.dust += sensor.pm2_5;
+              tsa.no2 += sensor.no2;
+              tsa.o3 += sensor.o3;
+              tsa.temp += sensor.temp;
+              tsa.humid += sensor.humi;
+
+              if (null != busInfo) {
+                let activeSensor = {
+                  sensorInfo: sensor,
+                  busInfo: busInfo,
+                };
+
+                activeSensorList.push(activeSensor);
+
+                console.log(
+                  "노선:%d 버스:%d 센서ID:%s 먼지:%f 이산화질소:%f 오존:%f 온도:%f 습도:%f 위도:%f 경도:%f",
+                  busInfo.routeNum,
+                  busInfo.busNum,
+                  sensor.serno,
+                  sensor.pm2_5,
+                  sensor.no2,
+                  sensor.o3,
+                  sensor.temp,
+                  sensor.humi,
+                  sensor.lat,
+                  sensor.lon
+                );
+              } else {
+                console.log("%s 센서가 연계된 버스 없음", sensor.serno);
+              }
+            }
+
+            let dataList = [];
+            let selectAll = false;
+
+            for (let c of checkedRouteNumbers) {
+              if(c == "모두 선택") {
+                selectAll = true;
+                break;
+              }
+            }
+
+            for (let i of activeSensorList) {
+              let busInfo = i.busInfo;
+              let sensorInfo = i.sensorInfo;
+
+              let isChecked = false;             
+
+              for (let c of checkedRouteNumbers) {
+                if (parseInt(c) == busInfo.routeNum) {
+                  isChecked = true;
+                  break;
+                }
+              }
+
+              let busData = {
+                busNumber: format("{0}({1})", busInfo.busNum, busInfo.routeNum),
+                data: [
+                  { type: TYPE.DUST, value: sensorInfo.pm2_5 },
+                  { type: TYPE.NO2, value: sensorInfo.no2 },
+                  { type: TYPE.O3, value: sensorInfo.o3 },
+                  { type: TYPE.TEMPERATURE, value: sensorInfo.temp },
+                  { type: TYPE.HUMID, value: sensorInfo.humi },
+                ],
+              };
+
+              if (isChecked || selectAll) {
+                dataList.push(busData);
+              }
+
+              routeSlide.routeDataDummyList.data = dataList;
+
+              let date = new Date();
+
+              routeSlide.measureTime = format(
+                "{0}년 {1}월 {2}일 {3}시 {4}분 {5}초",
+                date.getFullYear(),
+                date.getMonth() + 1,
+                date.getDate(),
+                date.getHours(),
+                date.getMinutes(),
+                date.getSeconds()
+              );
+            }
+          }
+        });
     },
   },
 };
