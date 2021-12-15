@@ -14,7 +14,7 @@ const ButtonProps = {
 }
 const Container = styled('button',ButtonProps)`
   padding: 0px 32px;
-  height: 48px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;

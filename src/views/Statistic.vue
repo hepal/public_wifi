@@ -31,19 +31,46 @@
         </div>
       </SectionSmall>
       <SectionTiny>
-        <label> 날짜 선택 </label>
+        <label> 시작 날짜 </label>
         <div class="container">
-          <datepicker :value="state.date" :language="ko"></datepicker>
+          <datepicker
+            v-if="selectedDataType === '일평균'"
+            :value="state.date"
+            :language="ko"
+          ></datepicker>
+          <select v-if="selectedDataType === '주평균'">
+            <option v-for="(week, index) in recentWeekList" :key="index">
+              {{ week }}
+            </option>
+          </select>
+          <select v-if="selectedDataType === '월평균'">
+            <option v-for="(month, index) in recentMonthList" :key="index">
+              {{ month }}
+            </option>
+          </select>
         </div>
       </SectionTiny>
-      <Button
-        :onClick="
-          () => {
-            onClickQuery();
-          }
-        "
-        type="PrimaryFilled"
-      >
+      <SectionTiny>
+        <label> 종료 날짜 </label>
+        <div class="container">
+          <datepicker
+            v-if="selectedDataType === '일평균'"
+            :value="state.date"
+            :language="ko"
+          ></datepicker>
+          <select v-if="selectedDataType === '주평균'">
+            <option v-for="(week, index) in recentWeekList" :key="index">
+              {{ week }}
+            </option>
+          </select>
+          <select v-if="selectedDataType === '월평균'">
+            <option v-for="(month, index) in recentMonthList" :key="index">
+              {{ month }}
+            </option>
+          </select>
+        </div>
+      </SectionTiny>
+      <Button :onClick="() => {onClickQuery();}" type="PrimaryFilled">
         <img :src="ic_search" alt="" />
         조회
       </Button>
@@ -74,9 +101,10 @@ import ic_search from "../assets/icon/search/white.svg";
 import DeleteUserModal from "@/components/Modal/DeleteUserModal/DeleteUserModal";
 import SensorTableText from "@/components/table/SensorTableText/SensorTableText";
 import { D3LineChart } from "vue-d3-charts";
-import axios from "axios";
 
-import jsonQurty from "json-query";
+import axios from "axios";
+//import jsonQurty from "json-query";
+
 import Datepicker from "vuejs-datepicker";
 import { ko } from "vuejs-datepicker/dist/locale";
 import ic_download from "../assets/icon/download.svg";
@@ -85,7 +113,7 @@ const Conainer = styled.div`
   width: calc(100% - 140px - 32px);
   height: 100%;
   padding: 32px;
-  padding-top: 64px;
+  padding-top: 96px;
   padding-left: 156px;
   text-align: left;
 `;
@@ -98,7 +126,7 @@ const Top = styled.div`
 `;
 
 const Section = styled.div`
-  width: 495px;
+  width: 512px;
   margin-right: 24px;
   display: flex;
   flex-direction: column;
@@ -127,7 +155,7 @@ const Section = styled.div`
   }
 `;
 const SectionSmall = styled.div`
-  width: 280px;
+  width: 296px;
   margin-right: 24px;
   display: flex;
   flex-direction: column;
@@ -161,6 +189,11 @@ const SectionTiny = styled.div`
   margin-right: 24px;
   display: flex;
   flex-direction: column;
+   select {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
   .vdp-datepicker {
     height: 100%;
     div {
@@ -195,8 +228,10 @@ const SectionTiny = styled.div`
   }
   .container {
     height: 48px;
-    width: 100%;
+    width: calc(100% - 8px);
     padding-left: 8px;
+    padding-right: 8px;
+    box-sizing: c
     margin-top: 8px;
     border: solid 0.5px ${(props) => props.theme.color.ui.low};
     border-radius: 4px;
@@ -229,7 +264,6 @@ const state = {
 
 //기간별 통계 조회
 var avgChart = null;
-
 export default {
   name: "Statistic",
   components: {
@@ -254,7 +288,9 @@ export default {
       search_id: null,
       is_delete_pop: false,
       selectedSensor: "",
-      selectedDataType: null,
+      selectedDataType: "일평균",
+      startDate: "",
+      endDate: "",
       state,
       ko: ko,
       ic_download,
@@ -375,6 +411,30 @@ export default {
           },
         ],
       },
+      recentWeekList: [
+        "12월 2주차",
+        "12월 1주차",
+        "11월 4주차",
+        "11월 3주차",
+        "11월 2주차",
+        "11월 1주차",
+        "10월 4주차",
+        "10월 3주차",
+        "10월 2주차",
+        "10월 1주차",
+      ],
+      recentMonthList: [
+        "2021년 12월",
+        "2021년 11월",
+        "2021년 10월",
+        "2021년 9월",
+        "2021년 8월",
+        "2021년 7월",
+        "2021년 6월",
+        "2021년 5월",
+        "2021년 4월",
+        "2021년 3월",
+      ],
       chart_config: {
         date: {
           key: "date",

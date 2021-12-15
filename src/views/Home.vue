@@ -1,6 +1,7 @@
 <template>
   <div class="home">
     <!-- 맵 캔버스 -->
+
     <MapCanvas ref="mapCanvas"> </MapCanvas>
     <!-- 버스 루트정보 FAB -->
     <ButtonToggleRoute v-on:click="isRoutePop = !isRoutePop">
@@ -11,6 +12,7 @@
     <!-- 주요 기상정보 지표 컨테이너 -->
     <IndicatorContainer>
       <CardIndicator
+
         v-on:requestSensorData="getRouteData"
         v-for="(indicator, index) in indicatorListDummy"
         :sensoeId="indicator.id"
@@ -261,6 +263,11 @@ const IndicatorContainer = styled.div`
   bottom: 24px;
   width: 100%;
   z-index: 9;
+  @media only screen and (max-width: 480px) {
+    left: 0px;
+    bottom: 12px;
+    justify-content: space-between;
+  }
 `;
 
 const AlarmListContainer = styled.div`
@@ -268,6 +275,9 @@ const AlarmListContainer = styled.div`
   top: 80px;
   right: 12px;
   z-index: 9;
+  @media only screen and (max-width: 480px) {
+    display: none;
+  }
 `;
 
 const ButtonToggleRoute = styled.button`
@@ -287,6 +297,10 @@ const ButtonToggleRoute = styled.button`
     width: 24px;
     height: 24px;
   }
+  @media only screen and (max-width: 480px) {
+    left: 16px;
+    top: 16px;
+  }
 `;
 
 const Test = styled.div`
@@ -300,6 +314,9 @@ const Test = styled.div`
     background-color: #cc1122;
     color: #fff;
     font-size: 24px;
+  }
+  @media only screen and (max-width: 480px) {
+    display: none;
   }
 `;
 
