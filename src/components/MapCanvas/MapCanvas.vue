@@ -187,42 +187,6 @@ var facilityUrl = "./images/bus.png";
 
 var route_file_name = "./Assets/Routes/bus_route_sensor_15.json";
 
-function createSampleBusRoute() {
-  let linePosString =
-    '[{"X": 127.0616282045669, "Y": 37.644782138098435},{"X": 127.06394485670444, "Y": 37.645432137572854},{"X": 127.06634919695142, "Y": 37.646094961197136},{"X": 127.06960943453808, "Y": 37.649087942133185},{"X": 127.07297452619258, "Y": 37.65136654739722},{"X": 127.07427763401154, "Y": 37.6545510443615},{"X": 127.07510931530567, "Y": 37.657638623057316},{"X": 127.07254219926395, "Y": 37.65985131704873},{"X": 127.06938331855696, "Y": 37.66252210838101},{"X": 127.06719138150517, "Y": 37.664047436738485},{"X": 127.06627182710909, "Y": 37.66430054219336},{"X": 127.06343326185048, "Y": 37.66469274575584},{"X": 127.06231660115802, "Y": 37.66504814404419},{"X": 127.06116131873159, "Y": 37.664990433174275}]';
-
-  let linePos = JSON.parse(linePosString);
-
-  let line_positions = [];
-
-  let i = 0;
-  for (let i = 0; i < linePos.length; i++) {
-    let cart3 = Cartesian3.fromDegrees(linePos[i].X, linePos[i].Y);
-    line_positions.push(cart3);
-  }
-
-  var line = this.viewer.entities.add({
-    name: "Green line",
-    polyline: {
-      positions: line_positions,
-      width: 10,
-      material: Color.GREEN,
-      clampToGround: true,
-    },
-  });
-
-  for (i = 0; i < linePos.length; i++) {
-    var cart3 = Cartesian3.fromDegrees(linePos[i].X, linePos[i].Y, 30);
-    this.viewer.entities.add({
-      position: cart3,
-      billboard: {
-        image: facilityUrl,
-        heightReference: HeightReference.RELATIVE_TO_GROUND,
-      },
-    });
-  }
-}
-
 function _updateSensors(viewer, sensorList) {
   for (let p of bus_pois) {
     viewer.entities.remove(p);
@@ -271,12 +235,6 @@ function _updateRouteInfo(viewer) {
   axios.get(route_file_name).then(function(response) {
     console.log(response);
   });
-
-  // let features = bus_route["features"];
-
-  // for (let i = 0; i < features.length; i++) {
-    
-  // }
 }
 
 
@@ -581,8 +539,8 @@ export default {
       },
     });
 
-    let source = new proj4.Proj("EPSG:5187");
-    let dest = new proj4.Proj("EPSG:4326");
+    let source = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
+    let dest = new proj4.Proj("EPSG:4326"); //위경도 좌표계
 
     let features = bus_route["features"];
 
@@ -601,17 +559,16 @@ export default {
 
         var pt = proj4.toPoint(co[0], co[1]); //포인트 생성
 
-        let result = proj4(source, dest, p);
+        let result = proj4(source, dest, p); //위경도로 변환
 
         let cart3 = Cartesian3.fromDegrees(result.x, result.y);
         bus_line_pos.push(cart3);
       }
 
-      if (bus_line_pos.length > 1) {
-        //console.log(bus_line_pos);
+      if (bus_line_pos.length > 1) {        
         let colorHsl = Color.fromHsl(Math.random() * 0.3, 0.8, 0.5, 0.8);
         let bus_line = this.viewer.entities.add({
-          name: "Green line",
+          name: "Bus route line",
           polyline: {
             positions: bus_line_pos,
             width: 10,

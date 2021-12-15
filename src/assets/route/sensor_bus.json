@@ -120,7 +120,7 @@
     "BusNumber": 2508
   },
   {
-    "SensorId": "DG242112014",
+    "SensorId": "DG242112029",
     "CompanyName": "경신교통",
     "RouteNumber": 523,
     "BusNumber": 2509
@@ -144,7 +144,7 @@
     "BusNumber": 1142
   },
   {
-    "SensorId": "DG242112011",
+    "SensorId": "DG242112027",
     "CompanyName": "신흥버스",
     "RouteNumber": 503,
     "BusNumber": 1157
