@@ -33,11 +33,15 @@
       <SectionTiny>
         <label> 날짜 선택 </label>
         <div class="container">
-           <datepicker :value="state.date" :language="ko"></datepicker>
+          <datepicker :value="state.date" :language="ko"></datepicker>
         </div>
       </SectionTiny>
       <Button
-         :onClick="()=>{}"
+        :onClick="
+          () => {
+            onClickQuery();
+          }
+        "
         type="PrimaryFilled"
       >
         <img :src="ic_search" alt="" />
@@ -45,7 +49,7 @@
       </Button>
     </Top>
     <h3>검색결과 7건</h3>
-    <Chart>
+    <Chart ref="avgChart">
       <D3LineChart
         :config="chart_config"
         :datum="sensorGraphDummyData"
@@ -55,10 +59,9 @@
       <SensorTableText :tableData="sensorDataDummy" />
     </TableContainer>
     <ActionBar>
-      <Button 
-        :onClick="()=>{}"
-        type="GrayOutlined"
-      ><img :src="ic_download" alt='' />엑셀 다운로드</Button>
+      <Button :onClick="() => {}" type="GrayOutlined"
+        ><img :src="ic_download" alt="" />엑셀 다운로드</Button
+      >
     </ActionBar>
     <!-- 팝업 -->
     <DeleteUserModal v-if="is_delete_pop" :onClose="toggleDeletePop" />
@@ -71,12 +74,12 @@ import ic_search from "../assets/icon/search/white.svg";
 import DeleteUserModal from "@/components/Modal/DeleteUserModal/DeleteUserModal";
 import SensorTableText from "@/components/table/SensorTableText/SensorTableText";
 import { D3LineChart } from "vue-d3-charts";
+import axios from "axios";
 
 import jsonQurty from "json-query";
-import Datepicker from 'vuejs-datepicker';
-import {ko} from 'vuejs-datepicker/dist/locale'
-import ic_download from '../assets/icon/download.svg';
-
+import Datepicker from "vuejs-datepicker";
+import { ko } from "vuejs-datepicker/dist/locale";
+import ic_download from "../assets/icon/download.svg";
 
 const Conainer = styled.div`
   width: calc(100% - 140px - 32px);
@@ -158,31 +161,32 @@ const SectionTiny = styled.div`
   margin-right: 24px;
   display: flex;
   flex-direction: column;
-  .vdp-datepicker{
+  .vdp-datepicker {
     height: 100%;
-    div{
+    div {
       /* height: 100%; */
     }
   }
-  header{
+  header {
     border: none !important;
   }
-  .selected{
-    background-color: ${props => props.theme.color.brand.primary700} !important;
+  .selected {
+    background-color: ${(props) =>
+      props.theme.color.brand.primary700} !important;
     color: #fff !important;
     border-radius: 50%;
   }
-  .vdp-datepicker__calendar{
+  .vdp-datepicker__calendar {
     background-color: #ffffff;
     /* height: 700px !important; */
   }
-  .cell{
+  .cell {
     background-color: #ffffff;
   }
-  .cell:hover{
-    border: solid 2px ${props => props.theme.color.brand.primary700} !important;
+  .cell:hover {
+    border: solid 2px ${(props) => props.theme.color.brand.primary700} !important;
   }
-  input{
+  input {
     width: 100%;
     border: none;
     height: 48px;
@@ -220,8 +224,11 @@ const TableContainer = styled.div`
 `;
 
 const state = {
-  date: new Date()
-}
+  date: new Date(),
+};
+
+//기간별 통계 조회
+var avgChart = null;
 
 export default {
   name: "Statistic",
@@ -238,7 +245,7 @@ export default {
     Chart,
     D3LineChart,
     Datepicker,
-    SectionTiny
+    SectionTiny,
   },
   data() {
     return {
@@ -246,35 +253,35 @@ export default {
       search_name: null,
       search_id: null,
       is_delete_pop: false,
-      selectedSensor: '',
+      selectedSensor: "",
       selectedDataType: null,
       state,
-      ko:ko,
+      ko: ko,
       ic_download,
       sensorList: [
         {
           title: "초미세먼지",
-          id:"dust",
+          id: "dust",
           isSelected: false,
         },
         {
           title: "이산화질소",
-          id:"no2",
+          id: "no2",
           isSelected: false,
         },
         {
           title: "오존",
-          id:"o3",
+          id: "o3",
           isSelected: false,
         },
         {
           title: "온도",
-          id:"temperature",
+          id: "temperature",
           isSelected: false,
         },
         {
           title: "습도",
-          id:"humid",
+          id: "humid",
           isSelected: false,
         },
       ],
@@ -416,16 +423,61 @@ export default {
           date: "2020-12-6",
         },
         {
-          value: 0.0010,
+          value: 0.001,
           type: "dust",
           date: "2020-12-7",
         },
       ],
     };
   },
-  methods: {
+  created: function () {
+      avgChart = this;
+    },
+  methods: {    
     toggleDeletePop() {
       this.is_delete_pop = !this.is_delete_pop;
+    },
+    onClickQuery() {
+      var date = new Date();
+
+      let jsonAvgBusData = {
+        requestSensorAvgData: {
+          sensorType: "pm2_5",
+          avgDate: "day",
+          beginYear: date.getFullYear(),
+          beginMonth: date.getMonth() + 1,
+          beginDay: 1,
+          endYear: date.getFullYear(),
+          endMonth: date.getMonth() + 1,
+          endDay: date.getDate(),
+        },
+      };
+
+      axios
+        .post("/Sensor", JSON.stringify(jsonAvgBusData), {
+          headers: { "Content-Type": "application/json" },
+        })
+        .then(function (response) {
+          if (response.status == 200) {            
+            console.log(response);
+            //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
+
+            let sensorAvgDataList = [];
+
+            for (let i of response.data.sensorAvgDatas) {
+              if(i.pm2_5 < 100000 && i.pm2_5 >=0)  { //에러값이 들어갈경우 걸러낸다. 
+              let sensorAvgData = {
+                value: i.pm2_5,
+                type: "pm2_5",
+                date: i.date,
+              };
+              sensorAvgDataList.push(sensorAvgData);
+              }              
+            }
+
+            avgChart.sensorGraphDummyData = sensorAvgDataList;
+          }
+        });
     },
   },
 };

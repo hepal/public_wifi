@@ -73,6 +73,7 @@ import {
   Ion,
   Camera,
   Rectangle,
+  destroyObject,
   BingMapsImageryProvider,
   BingMapsStyle,
   WebMapServiceImageryProvider,
@@ -479,6 +480,12 @@ export default {
     Camera.DEFAULT_VIEW_FACTOR = 0.05;
 
     // Cesium Viewer 초기화
+    if(this.$viewer != null)
+    {
+      this.viewer = this.$viewer;
+      return;
+    }
+
     this.viewer = new Viewer("cesiumContainer", {
       selectionIndicator: false,
       fullscreenButton: false,
@@ -491,6 +498,8 @@ export default {
       // 세슘 Ion 지형 사용시
       terrainProvider: createWorldTerrain(),
     });
+
+    this.$viewer = this.viewer;
 
     //건물 사용
     this.viewer.scene.primitives.add(createOsmBuildings());
@@ -539,55 +548,54 @@ export default {
       },
     });
 
-    let source = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
-    let dest = new proj4.Proj("EPSG:4326"); //위경도 좌표계
+    // let source = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
+    // let dest = new proj4.Proj("EPSG:4326"); //위경도 좌표계
 
-    let features = bus_route["features"];
+    // let features = bus_route["features"];
 
-    console.log(features);
+    // console.log(features);
 
-    for (let i = 0; i < features.length; i++) {
-      let bus_line_pos = [];
-      let feature = features[i];
+    // for (let i = 0; i < features.length; i++) {
+    //   let bus_line_pos = [];
+    //   let feature = features[i];
 
-      let j = 0;
+    //   let j = 0;
 
-      for (j = 0; j < feature["geometry"]["coordinates"][0].length; j++) {
-        let co = feature["geometry"]["coordinates"][0][j];
+    //   for (j = 0; j < feature["geometry"]["coordinates"][0].length; j++) {
+    //     let co = feature["geometry"]["coordinates"][0][j];
 
-        let p = { x: co[0], y: co[1] };
+    //     let p = { x: co[0], y: co[1] };
 
-        var pt = proj4.toPoint(co[0], co[1]); //포인트 생성
+    //     var pt = proj4.toPoint(co[0], co[1]); //포인트 생성
 
-        let result = proj4(source, dest, p); //위경도로 변환
+    //     let result = proj4(source, dest, p); //위경도로 변환
 
-        let cart3 = Cartesian3.fromDegrees(result.x, result.y);
-        bus_line_pos.push(cart3);
-      }
+    //     let cart3 = Cartesian3.fromDegrees(result.x, result.y);
+    //     bus_line_pos.push(cart3);
+    //   }
 
-      if (bus_line_pos.length > 1) {        
-        let colorHsl = Color.fromHsl(Math.random() * 0.3, 0.8, 0.5, 0.8);
-        let bus_line = this.viewer.entities.add({
-          name: "Bus route line",
-          polyline: {
-            positions: bus_line_pos,
-            width: 10,
-            material: colorHsl,
-            clampToGround: true,
-          },
-        });
-      }
-    }
+    //   if (bus_line_pos.length > 1) {        
+    //     let colorHsl = Color.fromHsl(Math.random() * 0.3, 0.8, 0.5, 0.8);
+    //     let bus_line = this.viewer.entities.add({
+    //       name: "Bus route line",
+    //       polyline: {
+    //         positions: bus_line_pos,
+    //         width: 10,
+    //         material: colorHsl,
+    //         clampToGround: true,
+    //       },
+    //     });
+    //   }
+    // }
   },
 
   beforeDestroy() {
     console.log("Map destroying..");
-    if (this.viewer != null) {
+    if (this.viewer != null) {      
       this.viewer.destroy();
-    }
+    }    
   },
 };
-
 
 </script>
 
