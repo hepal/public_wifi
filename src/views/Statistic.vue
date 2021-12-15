@@ -33,31 +33,22 @@
       <SectionTiny>
         <label> 시작 날짜 </label>
         <div class="container">
-          <datepicker
-            v-if="selectedDataType === '일평균'"
+          <datepicker ref="startDate"
             :value="state.date"
-            :language="ko"
-          ></datepicker>
-          <select v-if="selectedDataType === '주평균'">
-            <option v-for="(week, index) in recentWeekList" :key="index">
-              {{ week }}
-            </option>
-          </select>
-          <select v-if="selectedDataType === '월평균'">
-            <option v-for="(month, index) in recentMonthList" :key="index">
-              {{ month }}
-            </option>
-          </select>
+            :language="ko"            
+            @selected="dateSelected(this)"
+          ></datepicker>          
         </div>
       </SectionTiny>
       <SectionTiny>
         <label> 종료 날짜 </label>
         <div class="container">
-          <datepicker
-            v-if="selectedDataType === '일평균'"
+          <datepicker ref="endDate"
             :value="state.date"
-            :language="ko"
-          ></datepicker>
+            :language="ko"            
+            @selected="dateSelected(this)"
+          ></datepicker>          
+          <!--
           <select v-if="selectedDataType === '주평균'">
             <option v-for="(week, index) in recentWeekList" :key="index">
               {{ week }}
@@ -68,6 +59,7 @@
               {{ month }}
             </option>
           </select>
+          -->
         </div>
       </SectionTiny>
       <Button :onClick="() => {onClickQuery();}" type="PrimaryFilled">
@@ -444,6 +436,7 @@ export default {
 
         values: ["value"],
         axis: {
+          xTicks: 10,
           yTicks: 4,
         },
         color: {
@@ -493,25 +486,51 @@ export default {
   created: function () {
       avgChart = this;
     },
-  methods: {    
+  methods: {        
+    dateSelected(e) {      
+
+    },
     toggleDeletePop() {
       this.is_delete_pop = !this.is_delete_pop;
     },
     onClickQuery() {
-      var date = new Date();
+      if(this.selectedSensor == undefined || this.selectedDataType == undefined) {
+        return;
+      }     
+
+      var startDate = this.$refs.startDate.selectedDate;
+      var endDate = this.$refs.endDate.selectedDate;
+
+      let date = new Date();
+
+
+      let avgDate = "day";
+
+      switch(this.selectedDataType) {
+        case "일평균":
+          avgDate = "day";
+          break;
+        case "주평균":
+          avgDate = "week";
+          break;
+        case "월평균":
+          avgDate = "month";
+          break;
+      }
 
       let jsonAvgBusData = {
         requestSensorAvgData: {
-          sensorType: "pm2_5",
-          avgDate: "day",
-          beginYear: date.getFullYear(),
-          beginMonth: date.getMonth() + 1,
-          beginDay: 1,
-          endYear: date.getFullYear(),
-          endMonth: date.getMonth() + 1,
-          endDay: date.getDate(),
+          sensorType: "pm2_5", //나중에 고쳐야 함.
+          avgDate: avgDate,
+          beginYear: startDate.getFullYear(),
+          beginMonth: startDate.getMonth() + 1,
+          beginDay: startDate.getDate(),
+          endYear: endDate.getFullYear(),
+          endMonth: endDate.getMonth() + 1,
+          endDay: endDate.getDate(),
         },
-      };
+      };      
+
 
       axios
         .post("/Sensor", JSON.stringify(jsonAvgBusData), {
@@ -535,6 +554,7 @@ export default {
               }              
             }
 
+            avgChart.chart_config.axis.xTicks = sensorAvgDataList.length;
             avgChart.sensorGraphDummyData = sensorAvgDataList;
           }
         });
