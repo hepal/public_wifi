@@ -206,6 +206,7 @@ export default {
   },
   created() {
     routeSlide = this;
+    checkedRouteNumbers.push("모두 선택");
   },
   mounted() {
     console.log(this.$refs.top.$el.clientHeight);
