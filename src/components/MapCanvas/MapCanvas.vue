@@ -244,7 +244,7 @@ function endTimer() {
   // strip the ms
   timeDiff /= 1000;
 
-  // get seconds 
+  // get seconds
   var seconds = Math.round(timeDiff);
   console.log(timeDiff + " seconds");
 }
@@ -274,7 +274,6 @@ function _updateRouteInfo(viewer, totalSensorList) {
   let boundBottom = route_cell["bound_bottom"];
 
   if (null != totalSensorList) {
-
     let minValue = 1000000;
     let maxValue = -1000000;
 
@@ -286,7 +285,7 @@ function _updateRouteInfo(viewer, totalSensorList) {
       let stepY = Math.floor((result.y - boundBottom) / cellStep);
 
       let cellId = stepY * cellSize + stepX;
-      
+
       if (cellRouteMap.has(cellId)) {
         for (let routeId of cellRouteMap.get(cellId)) {
           //route number
@@ -301,9 +300,6 @@ function _updateRouteInfo(viewer, totalSensorList) {
           }
         }
       }
-
-      console.log("route color updated");
-      endTimer();
     }
 
     //update line color
@@ -316,6 +312,9 @@ function _updateRouteInfo(viewer, totalSensorList) {
 
       pair.value.material = color;
     }
+
+    console.log("route color updated");
+    endTimer();
   }
 }
 

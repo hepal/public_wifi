@@ -4,7 +4,7 @@
       :setCurrentScreen="setCurrentScreen"
       :currentScreen="currentScreen"
     />
-    {{currentScreen}}
+    {{ currentScreen }}
     <!-- 맵 캔버스 -->
 
     <MapCanvas ref="mapCanvas"> </MapCanvas>
@@ -17,7 +17,6 @@
     <!-- 주요 기상정보 지표 컨테이너 -->
     <IndicatorContainer>
       <CardIndicator
-
         v-on:requestSensorData="getRouteData"
         v-for="(indicator, index) in indicatorListDummy"
         :sensoeId="indicator.id"
@@ -40,14 +39,14 @@
       />
     </AlarmListContainer>
     <!-- 스크린 -->
-    <ScreenContainer v-if="currentScreen==='STATISTIC'">
-      <Statistic/>
+    <ScreenContainer v-if="currentScreen === 'STATISTIC'">
+      <Statistic />
     </ScreenContainer>
-    <ScreenContainer v-if="currentScreen==='SETTING'">
-      <Setting/>
+    <ScreenContainer v-if="currentScreen === 'SETTING'">
+      <Setting />
     </ScreenContainer>
-    <ScreenContainer v-if="currentScreen==='USERMANAGING'">
-      <ManageUser/>
+    <ScreenContainer v-if="currentScreen === 'USERMANAGING'">
+      <ManageUser />
     </ScreenContainer>
     <!-- 모달 -->
     <Test>
@@ -69,11 +68,11 @@ import HashMap from "hashmap";
 
 // @ is an alias to /src
 import styled from "vue-styled-components";
-import NavInteractive from '@/components/Nav/NavInteractive';
+import NavInteractive from "@/components/Nav/NavInteractive";
 import MapCanvas from "../components/MapCanvas/MapCanvas";
-import Statistic from '@/views/Statistic';
-import Setting from '@/views/Setting';
-import ManageUser from '@/views/ManageUser';
+import Statistic from "@/views/Statistic";
+import Setting from "@/views/Setting";
+import ManageUser from "@/views/ManageUser";
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
 import WarnAlarmList from "../components/AlarmList/WarnAlarmList/WarnAlarmList";
 import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
@@ -109,20 +108,22 @@ var sensorList = [];
 var mapCanvas = null;
 
 var sensorAvgValues = {
-   dust : 23,
-   no2 : 0.012,
-   o3 : 23,
-   temp : 31,
-   humid : 35,
+  dust: 23,
+  no2: 0.012,
+  o3: 23,
+  temp: 31,
+  humid: 35,
 };
 
 //route 값을 가져온다.
 function requestRouteData(home) {
-  if(null != mapCanvas.$refs.mapCanvas || undefined != mapCanvas.$refs.mapCanvas) {
-     mapCanvas.$refs.mapCanvas.updateRoute();
+  if (
+    null != mapCanvas.$refs.mapCanvas ||
+    undefined != mapCanvas.$refs.mapCanvas
+  ) {
+    mapCanvas.$refs.mapCanvas.updateRoute();
   }
 }
-
 
 //sensor 값을 가져온다.
 function requestData(home) {
@@ -171,11 +172,11 @@ function requestData(home) {
         sensorList = tempSensorList;
 
         let tsa = {
-          dust : 0,
-          no2 : 0,
-          o3 : 0,
-          temp : 0,
-          humid : 0,
+          dust: 0,
+          no2: 0,
+          o3: 0,
+          temp: 0,
+          humid: 0,
         };
 
         let activeSensorList = [];
@@ -190,8 +191,8 @@ function requestData(home) {
 
           if (null != busInfo) {
             let activeSensor = {
-              sensorInfo : sensor,
-              busInfo :  busInfo
+              sensorInfo: sensor,
+              busInfo: busInfo,
             };
 
             activeSensorList.push(activeSensor);
@@ -202,12 +203,22 @@ function requestData(home) {
           }
         }
 
-        if(sensorList.length > 0) {
-          mapCanvas.indicatorListDummy[0].value = roundToTwo(tsa.dust / sensorList.length);
-          mapCanvas.indicatorListDummy[1].value = roundToTwo(tsa.no2 / sensorList.length);
-          mapCanvas.indicatorListDummy[2].value = roundToTwo(tsa.o3 / sensorList.length);
-          mapCanvas.indicatorListDummy[3].value = roundToTwo(tsa.temp / sensorList.length);
-          mapCanvas.indicatorListDummy[4].value = roundToTwo(tsa.humid / sensorList.length);
+        if (sensorList.length > 0) {
+          mapCanvas.indicatorListDummy[0].value = roundToTwo(
+            tsa.dust / sensorList.length
+          );
+          mapCanvas.indicatorListDummy[1].value = roundToTwo(
+            tsa.no2 / sensorList.length
+          );
+          mapCanvas.indicatorListDummy[2].value = roundToTwo(
+            tsa.o3 / sensorList.length
+          );
+          mapCanvas.indicatorListDummy[3].value = roundToTwo(
+            tsa.temp / sensorList.length
+          );
+          mapCanvas.indicatorListDummy[4].value = roundToTwo(
+            tsa.humid / sensorList.length
+          );
 
           // sensorAvgValues.dust = tsa.dust / sensorList.length;
           // sensorAvgValues.no2 = tsa.no2 / sensorList.length;
@@ -217,8 +228,11 @@ function requestData(home) {
 
           //sensorAvgValues = tsa;
         }
-        
-        if(null != mapCanvas.$refs.mapCanvas || undefined != mapCanvas.$refs.mapCanvas) {
+
+        if (
+          null != mapCanvas.$refs.mapCanvas ||
+          undefined != mapCanvas.$refs.mapCanvas
+        ) {
           mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
           mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
         }
@@ -227,7 +241,7 @@ function requestData(home) {
 }
 
 function roundToTwo(num) {
-    return +(Math.round(num + "e+2")  + "e-2");
+  return +(Math.round(num + "e+2") + "e-2");
 }
 
 function getBusInfo(sensorId) {
@@ -236,7 +250,7 @@ function getBusInfo(sensorId) {
       let bus = {
         compName: busInfo.CompanyName,
         routeNum: busInfo.RouteNumber,
-        busNum: busInfo.BusNumber,        
+        busNum: busInfo.BusNumber,
       };
 
       return bus;
@@ -373,6 +387,14 @@ export default {
     SubmitMsgModal,
     NavInteractive,
   },
+   created: function () {
+    mapCanvas = this;
+
+    setInterval(function () {
+      requestData(this);
+      console.log("request bus data");
+    }, 10000);
+  },
   methods: {
     togglePop() {
       this.isRoutePop = !this.isRoutePop;
@@ -389,24 +411,16 @@ export default {
     },
     getRouteData() {
       requestRouteData(this);
-    }
-  },
-  created: function () {
-    mapCanvas = this;
-
-    setInterval(function() {
-      requestData(this)
-      console.log("request bus data");
-    },10000)
-  },
-  setCurrentScreen(screenName) {
+    },
+    setCurrentScreen(screenName) {
       this.currentScreen = screenName;
-    },  
+    },
+  }, 
   data() {
     return {
       // 라우터 대신 사용할 현재 화면 값
       // MAP, STATISTIC, SETTING, USERMANAGING
-      currentScreen:'MAP',
+      currentScreen: "MAP",
       sensorList: sensorList,
       // IMG
       ic_route,
