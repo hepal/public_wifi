@@ -503,7 +503,7 @@ export default {
       var startDate = this.$refs.startDate.selectedDate;
       var endDate = this.$refs.endDate.selectedDate;
 
-      let date = new Date();
+      //let date = new Date();
 
 
       let avgDate = "day";
@@ -545,9 +545,15 @@ export default {
 
             let sensorAvgDataList = [];
 
-            for (let i of response.data.sensorAvgDatas) {              
+            for (let i of response.data.sensorAvgDatas) {      
+              let value = i[sensorType];
+
+              if(sensorType == 'no2') { //이산화 질소는 1/1000
+                value = value / 1000;
+              }
+              
               let sensorAvgData = {
-                value: i[sensorType],
+                value: value,
                 type: sensorType,
                 date: i.date,
               };

@@ -50,7 +50,7 @@
     </ScreenContainer>
     <!-- 모달 -->
     <Test>
-      <button v-on:click="toggleAlertPop">상황전파 발생 테스트</button>
+      <button v-show="false" v-on:click="toggleAlertPop">상황전파 발생 테스트</button>
     </Test>
     <AlertNoticeModal
       v-if="isAlertNoticePop"
@@ -116,33 +116,49 @@ var sensorAvgValues = {
 };
 
 //route 값을 가져온다.
-function requestRouteData(home) {
+function requestRouteData(home, sensorType) {
   if (
     null != mapCanvas.$refs.mapCanvas ||
     undefined != mapCanvas.$refs.mapCanvas
   ) {
-    mapCanvas.$refs.mapCanvas.updateRoute();
+    mapCanvas.$refs.mapCanvas.setActiveSensor(sensorType);
   }
 }
 
 //sensor 값을 가져온다.
-function requestData(home) {
+function requestData(home, fullData) {
   var date = new Date();
 
-  let jsonBusData = {
-    requestSensorData: {
-      beginYear: date.getFullYear(),
-      beginMonth: date.getMonth() + 1,
-      beginDay: date.getDate(),
-      beginHour: date.getHours(),
-      endYear: date.getFullYear(),
-      endMonth: date.getMonth() + 1,
-      endDay: date.getDate(),
-      endHour: date.getHours(),
-    },
-  };
+  let jsonBusData = null;
 
-  //axios.post('http://210.90.145.70:12000/Sensor',JSON.stringify(jsonBusData),
+  if (fullData) {
+    jsonBusData = {
+      requestSensorData: {
+        beginYear: date.getFullYear(),
+        beginMonth: date.getMonth() + 1,
+        beginDay: date.getDate(),
+        //beginHour: date.getHours(),
+        endYear: date.getFullYear(),
+        endMonth: date.getMonth() + 1,
+        endDay: date.getDate(),
+        //endHour: date.getHours(),
+      },
+    };
+  } else {
+    jsonBusData = {
+      requestSensorData: {
+        beginYear: date.getFullYear(),
+        beginMonth: date.getMonth() + 1,
+        beginDay: date.getDate(),
+        beginHour: Math.max(0, date.getHours() - 1),
+        endYear: date.getFullYear(),
+        endMonth: date.getMonth() + 1,
+        endDay: date.getDate(),
+        endHour: date.getHours(),
+      },
+    };
+  }
+
   axios
     .post("/Sensor", JSON.stringify(jsonBusData), {
       headers: { "Content-Type": "application/json" },
@@ -208,7 +224,7 @@ function requestData(home) {
             tsa.dust / sensorList.length
           );
           mapCanvas.indicatorListDummy[1].value = roundToTwo(
-            tsa.no2 / sensorList.length
+            (tsa.no2 / sensorList.length) * 0.0001 //이산화질소는 1/1000 로 줄여야 한다.
           );
           mapCanvas.indicatorListDummy[2].value = roundToTwo(
             tsa.o3 / sensorList.length
@@ -234,7 +250,9 @@ function requestData(home) {
           undefined != mapCanvas.$refs.mapCanvas
         ) {
           mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
-          mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
+
+          if(fullData)
+            mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
         }
       }
     });
@@ -387,11 +405,12 @@ export default {
     SubmitMsgModal,
     NavInteractive,
   },
-   created: function () {
+  created: function () {
     mapCanvas = this;
 
+    //10초에 한번씩 호출 (버스 및 현재 데이터 업데이트)
     setInterval(function () {
-      requestData(this);
+      requestData(this, false);
       console.log("request bus data");
     }, 10000);
   },
@@ -409,13 +428,14 @@ export default {
     getSensorData() {
       requestData(this);
     },
-    getRouteData() {
-      requestRouteData(this);
+    getRouteData(sensorType) {
+      requestRouteData(this, sensorType);
+      requestData(this, true);
     },
     setCurrentScreen(screenName) {
       this.currentScreen = screenName;
     },
-  }, 
+  },
   data() {
     return {
       // 라우터 대신 사용할 현재 화면 값
@@ -433,7 +453,7 @@ export default {
       // DATA DUMMY
       indicatorListDummy: [
         {
-          id: "dust",
+          id: "pm2_5",
           title: "초미세먼지",
           unit: "㎍/㎥",
           value: sensorAvgValues.dust,
@@ -465,7 +485,7 @@ export default {
           isSelected: false,
         },
         {
-          id: "humid",
+          id: "humi",
           title: "습도",
           unit: "%",
           value: sensorAvgValues.humid,
@@ -474,38 +494,38 @@ export default {
         },
       ],
       alarmListDummy: [
-        {
-          id: "dust",
-          title: "초미세먼지 주의보 발령",
-          type: "초미세먼지",
-          img: ic_dust,
-          level: "주의보",
-          date: "20221-11-12  |  3:15:21pm",
-        },
-        {
-          id: "dust",
-          title: "초미세먼지 주의보 발령",
-          type: "폭염",
-          img: ic_temp,
-          level: "주의보",
-          date: "20221-11-12  |  3:15:21pm",
-        },
-        {
-          id: "dust",
-          title: "오존 주의보 발령",
-          type: "오존",
-          img: ic_o3,
-          level: "주의보",
-          date: "20221-11-12  |  3:15:21pm",
-        },
-        {
-          id: "dust",
-          title: "초미세먼지 주의보 발령",
-          type: "초미세먼지",
-          img: ic_dust,
-          level: "주의보",
-          date: "20221-11-12  |  3:15:21pm",
-        },
+        // {
+        //   id: "dust",
+        //   title: "초미세먼지 주의보 발령",
+        //   type: "초미세먼지",
+        //   img: ic_dust,
+        //   level: "주의보",
+        //   date: "20221-11-12  |  3:15:21pm",
+        // },
+        // {
+        //   id: "dust",
+        //   title: "초미세먼지 주의보 발령",
+        //   type: "폭염",
+        //   img: ic_temp,
+        //   level: "주의보",
+        //   date: "20221-11-12  |  3:15:21pm",
+        // },
+        // {
+        //   id: "dust",
+        //   title: "오존 주의보 발령",
+        //   type: "오존",
+        //   img: ic_o3,
+        //   level: "주의보",
+        //   date: "20221-11-12  |  3:15:21pm",
+        // },
+        // {
+        //   id: "dust",
+        //   title: "초미세먼지 주의보 발령",
+        //   type: "초미세먼지",
+        //   img: ic_dust,
+        //   level: "주의보",
+        //   date: "20221-11-12  |  3:15:21pm",
+        // },
       ],
     };
   },

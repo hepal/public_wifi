@@ -15,6 +15,7 @@
         :y="bus.location.y"
       />
       <LocationInfoEntity
+        ref="locationInfo"
         v-for="(location, index) in locationInfoDataDummy"
         :key="index"
         :title="location.title"
@@ -48,6 +49,7 @@
             v-on:click="
               isMapStylerSelected = !isMapStylerSelected;
               currentMapStyle = 'mono';
+              updateMapLayer(currentMapStyle);
             "
           >
             <span>모노크롬</span>
@@ -57,6 +59,7 @@
             v-on:click="
               isMapStylerSelected = !isMapStylerSelected;
               currentMapStyle = 'satellite';
+              updateMapLayer(currentMapStyle);
             "
           >
             <span>위성</span>
@@ -103,6 +106,7 @@ import {
   Math as CesiumMath,
   HeadingPitchRoll,
   Transforms,
+  SceneTransforms,
 } from "cesium";
 
 import Container from "./Container";
@@ -183,15 +187,37 @@ function setMarkerInPos(positionCartographic, viewer) {
 
 //버스 poi 리스트
 var bus_pois = [];
+var bus_infos = [];
+var bus_locations = [];
 var bus_lables = [];
-
+var cesiumViewer = null;
 var facilityUrl = "./images/bus.png";
 
 //var route_file_name = "./Assets/Routes/bus_route_sensor_15.json";
 
 //var currentSensorList = null;
+function _updateMapLayer(viewer, currentMapStyle) {
+  let layers = viewer.scene.imageryLayers;
+  let baseLayer = layers.get(0);
+
+  if (currentMapStyle == "mono") {
+    if (osm != baseLayer) {
+      layers.remove(baseLayer);
+      let layer = layers.addImageryProvider(osm);
+      layer.saturation = 0.1;
+    }
+  } else {
+    if (bing != baseLayer) {
+      layers.remove(baseLayer);
+      let layer = layers.addImageryProvider(bing);
+    }
+  }
+}
 
 function _updateSensors(viewer, sensorList) {
+  bus_infos = [];
+  bus_locations = [];
+
   for (let p of bus_pois) {
     viewer.entities.remove(p);
   }
@@ -209,6 +235,7 @@ function _updateSensors(viewer, sensorList) {
     var cart3 = Cartesian3.fromDegrees(sensorInfo.lon, sensorInfo.lat, 30);
 
     let poi = viewer.entities.add({
+      name : busInfo.busNum,
       position: cart3,
       billboard: {
         image: bus_icon,
@@ -226,6 +253,9 @@ function _updateSensors(viewer, sensorList) {
       },
     });
     bus_pois.push(poi);
+    bus_infos.push(busInfo);
+    bus_locations.push(cart3);
+    //let screenPos = SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, cart3);
   }
 }
 
@@ -273,9 +303,17 @@ function _updateRouteInfo(viewer, totalSensorList) {
   let boundLeft = route_cell["bound_left"];
   let boundBottom = route_cell["bound_bottom"];
 
+  //초기화
+  for (const pair of busRouteMap) {
+    pair.value.name = "0";
+  }
+
   if (null != totalSensorList) {
     let minValue = 1000000;
     let maxValue = -1000000;
+
+    let tempTotalValueMap = new HashMap();
+    let tempTotalValueCountMap = new HashMap();
 
     for (let sensor of totalSensorList) {
       let p = { x: sensor.lon, y: sensor.lat };
@@ -290,27 +328,69 @@ function _updateRouteInfo(viewer, totalSensorList) {
         for (let routeId of cellRouteMap.get(cellId)) {
           //route number
           if (busRouteMap.has(routeId)) {
-            let line = busRouteMap.get(routeId);
-            let value = parseFloat(line.name); //line entity의 name을 값 저장소로 활용
+            let value = sensor[activeSensorType];
 
-            minValue = Math.min(sensor.pm2_5, minValue);
-            maxValue = Math.max(sensor.pm2_5, maxValue);
+            if (!tempTotalValueMap.has(routeId)) {
+              tempTotalValueMap.set(routeId, value);
+              tempTotalValueCountMap.set(routeId, 1);
+            } else {
+              tempTotalValueMap.set(
+                routeId,
+                tempTotalValueMap.get(routeId) + value
+              );
+              tempTotalValueCountMap.set(
+                routeId,
+                tempTotalValueCountMap.get(routeId) + 1
+              );
+            }
 
-            line.name = ((value + sensor.pm2_5) * 0.5).toString();
+            // let line = busRouteMap.get(routeId);
+            // let value = parseFloat(line.name); //line entity의 name을 값 저장소로 활용
+
+            // minValue = Math.min(sensor[activeSensorType], minValue);
+            // maxValue = Math.max(sensor[activeSensorType], maxValue);
+
+            //line.name = ((value + sensor[activeSensorType]) * 0.5).toString();
           }
         }
       }
     }
-
     //update line color
     for (const pair of busRouteMap) {
-      let value = parseFloat(pair.value.name);
+      if (tempTotalValueMap.has(pair.key)) {
+        let totalValue = tempTotalValueMap.get(pair.key);
+        let value = totalValue / tempTotalValueCountMap.get(pair.key);
 
-      let hue = ((maxValue - value + minValue) / maxValue) * 180.0;
+        //let value = parseFloat(pair.value.name);
 
-      let color = Color.fromHsl(hue, 0.8, 0.5, 0.8);
+        let hue = 0;
+        switch (activeSensorType) {
+          case "pm2_5":
+            hue = Math.max(0, ((75 - value) / 75) * 0.666667); //(0~240)도
+            break;
+          case "o3":
+            hue = Math.max(0, ((0.2 - value) / 0.2) * 0.666667); //(0~240)도
+            break;
+          case "no2":
+            value = value / 1000; //이산화질소는 1/1000 로 줄임
+            hue = Math.max(0, ((0.15 - value) / 0.15) * 0.666667); //(0~240)도
+            break;
+          case "humi":
+            hue = Math.max(0, (value / 100) * 0.666667); //(0~240)도
+            break;
+          case "temp":
+            hue = Math.max(0, ((45 - value) / 65) * 0.666667); //(0~240)도
+            break;
+        }
 
-      pair.value.material = color;
+        if (isNaN(hue)) {
+          console.log("value:" + value + " totalValue" + totalValue);
+        }
+
+        let color = Color.fromHsl(hue, 0.8, 0.5, 0.5);
+
+        pair.value.polyline.material = color;
+      }
     }
 
     console.log("route color updated");
@@ -461,13 +541,13 @@ function createBusRoute(viewer) {
     }
 
     if (bus_line_pos.length > 1) {
-      let colorHsl = Color.fromHsl(Math.random() * 0.3, 0.8, 0.5, 0.8);
+      //let colorHsl = Color.fromHsl(Math.random() * 0.3, 0.8, 0.5, 0.8);
       let bus_line = viewer.entities.add({
         name: "0", //value로 사용함
         polyline: {
           positions: bus_line_pos,
           width: 10,
-          material: colorHsl,
+          material: Color.PURPLE,
           clampToGround: true,
         },
       });
@@ -477,6 +557,12 @@ function createBusRoute(viewer) {
   }
 }
 
+var activeSensorType = "pm2_5";
+
+var osm = null;
+var bing = null;
+var locationInfoData = [];
+var locationInfoControl = null;
 ///////////////////////////////////////////
 
 export default {
@@ -507,27 +593,27 @@ export default {
       isMapStylerSelected: false,
       currentMapStyle: "mono", // 'monoe' || 'satellite',
       busDataDummy: [
-        {
-          number: 523,
-          location: {
-            x: 400,
-            y: 340,
-          },
-        },
-        {
-          number: 523,
-          location: {
-            x: 600,
-            y: 540,
-          },
-        },
-        {
-          number: 523,
-          location: {
-            x: 250,
-            y: 580,
-          },
-        },
+        // {
+        //   number: 523,
+        //   location: {
+        //     x: 400,
+        //     y: 340,
+        //   },
+        // },
+        // {
+        //   number: 523,
+        //   location: {
+        //     x: 600,
+        //     y: 540,
+        //   },
+        // },
+        // {
+        //   number: 523,
+        //   location: {
+        //     x: 250,
+        //     y: 580,
+        //   },
+        // },
       ],
       locationInfoDataDummy: [
         {
@@ -541,53 +627,23 @@ export default {
             x: 500,
             y: 240,
           },
-        },
-        {
-          locationName: "대구광역시 OOO동",
-          dust: 0.001,
-          no2: 0.012,
-          o3: 0.01,
-          temperature: 34,
-          humid: 65,
-          location: {
-            x: 900,
-            y: 180,
-          },
-        },
-        {
-          locationName: "대구광역시 OOO동",
-          dust: 0.001,
-          no2: 0.012,
-          o3: 0.01,
-          temperature: 34,
-          humid: 65,
-          location: {
-            x: 600,
-            y: 480,
-          },
-        },
-        {
-          locationName: "대구광역시 OOO동",
-          dust: 0.001,
-          no2: 0.012,
-          o3: 0.01,
-          temperature: 34,
-          humid: 65,
-          location: {
-            x: 120,
-            y: 560,
-          },
-        },
+        },        
       ],
     };
   },
-
   methods: {
+    updateMapLayer(currentMapStyle) {
+      _updateMapLayer(this.viewer, currentMapStyle);
+    },
     updateSensors(activeSensorList) {
       _updateSensors(this.viewer, activeSensorList);
     },
     updateRoute(totalSensorList) {
       _updateRouteInfo(this.viewer, totalSensorList);
+    },
+    setActiveSensor(sensorType) {
+      activeSensorType = sensorType;
+      console.log("active sensor:" + activeSensorType);
     },
   },
 
@@ -604,6 +660,8 @@ export default {
     // let y = bus_route["features"][0]['geometry']['coordinates'][0][1];
     // console.log(y);
 
+    locationInfoData = this.locationInfoDataDummy;
+    locationInfoControl = this.$refs.locationInfo;
     Ion.defaultAccessToken = this.cesiumAccessToken;
     Camera.DEFAULT_VIEW_RECTANGLE = Rectangle.fromDegrees(
       126.725305,
@@ -618,7 +676,6 @@ export default {
       this.viewer = this.$viewer;
       return;
     }
-
     this.viewer = new Viewer("cesiumContainer", {
       selectionIndicator: false,
       fullscreenButton: false,
@@ -632,39 +689,64 @@ export default {
       terrainProvider: createWorldTerrain(),
     });
 
+    cesiumViewer = this.viewer;
     this.$viewer = this.viewer;
 
     //건물 사용
     this.viewer.scene.primitives.add(createOsmBuildings());
     this.viewer.scene.globe.depthTestAgainstTerrain = true;
     //this.viewer.scene.primitives.add(Cesium.createOsmBuildings());
-    this.viewer.scene.canvas.addEventListener(
-      "contextmenu",
-      (event) => {
-        event.preventDefault();
-        const mousePosition = new Cartesian2(event.clientX, event.clientY);
-        const selectedLocation = this.viewer.scene.pickPosition(mousePosition);
+    // this.viewer.scene.canvas.addEventListener(
+    //   "contextmenu",
+    //   (event) => {
+    //     event.preventDefault();
+    //     const mousePosition = new Cartesian2(event.clientX, event.clientY);
+    //     const selectedLocation = this.viewer.scene.pickPosition(mousePosition);
 
-        setMarkerInPos(
-          Cartographic.fromCartesian(selectedLocation),
-          this.viewer
-        );
-      },
-      false
-    );
+    //     setMarkerInPos(
+    //       Cartographic.fromCartesian(selectedLocation),
+    //       this.viewer
+    //     );
+    //   },
+    //   false
+    // );
 
-    // var bing = new BingMapsImageryProvider({
-    //   url: "https://dev.virtualearth.net",
-    //   key: "AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr",
-    //   mapStyle: BingMapsStyle.ROAD_ON_DEMAND,
-    // });
+    this.viewer.selectedEntityChanged.addEventListener(function (
+      selectedEntity
+    ) {
+      if (CesiumDefined(selectedEntity)) {
+        if (CesiumDefined(selectedEntity.name)) {
+          console.log("Selected " + selectedEntity.name);
+          
+          let counter = 0;
+          for(let b of bus_infos) {
+            if(b.busNum == selectedEntity.name) {
+              console.log(b);
+              let cart2 = SceneTransforms.wgs84ToWindowCoordinates(cesiumViewer.scene, bus_locations[counter]);
+              locationInfoData[0].location.x = cart2.x + 70;
+              locationInfoData[0].location.y = cart2.y - 60;
+              break;
+            }
 
-    // var layers = this.viewer.scene.imageryLayers;
-    // layers.addImageryProvider(bing);
+            counter++;
+          }
+        } else {
+          console.log("Unknown entity selected.");
+        }
+      } else {
+        console.log("Deselected.");
+        locationInfoData[0].location.x = -1000;
+        locationInfoData[0].location.y = -1000;
+      }
+    });
 
-    // const me = this;
+    bing = new BingMapsImageryProvider({
+      url: "https://dev.virtualearth.net",
+      key: "AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr",
+      mapStyle: BingMapsStyle.AERIAL,
+    });
 
-    var osm = new OpenStreetMapImageryProvider({
+    osm = new OpenStreetMapImageryProvider({
       url: "https://a.tile.openstreetmap.org/",
       defaultGamma: 0.5,
     });
@@ -683,6 +765,14 @@ export default {
 
     createBusRoute(this.viewer);
     createCellRouteMap();
+
+    var handler = new ScreenSpaceEventHandler(cesiumViewer.scene.canvas);
+
+    handler.setInputAction(function (movement) {
+      // for(let p of bus_positions) {
+      //   console.log(SceneTransforms.wgs84ToWindowCoordinates(cesiumViewer.scene, p));
+      // }
+    }, ScreenSpaceEventType.MOUSE_MOVE);
   },
 
   beforeDestroy() {

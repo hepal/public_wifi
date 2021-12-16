@@ -35,9 +35,8 @@ export default {
   },
   methods: {
     testFunction : function(event) {
-      console.log(event)
-      //requestData()
-      this.$emit("requestSensorData")
+      console.log(event)      
+      this.$emit("requestSensorData",event)
     },
   }
 }

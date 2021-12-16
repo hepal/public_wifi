@@ -520,7 +520,7 @@ export default {
                 busNumber: format("{0}({1})", busInfo.busNum, busInfo.routeNum),
                 data: [
                   { type: TYPE.DUST, value: sensorInfo.pm2_5 },
-                  { type: TYPE.NO2, value: sensorInfo.no2 },
+                  { type: TYPE.NO2, value: roundToTwo(sensorInfo.no2 / 1000)},
                   { type: TYPE.O3, value: sensorInfo.o3 },
                   { type: TYPE.TEMPERATURE, value: sensorInfo.temp },
                   { type: TYPE.HUMID, value: sensorInfo.humi },

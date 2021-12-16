@@ -46,12 +46,23 @@ const ContainerProps = {
   humid: Number,
 };
 
+// const Container = styled("div", ContainerProps)`
+//   position: absolute;
+//   border-radius: 6px;
+//   width: 48px;
+//   height: 48px;
+//   background-color: ${(props) => props.theme.color.brand.primary600};
+//   top: ${(props) => `${props.y}px`};
+//   left: ${(props) => `${props.x}px`};
+//   cursor: pointer;
+// `;
+
 const Container = styled("div", ContainerProps)`
   position: absolute;
   border-radius: 6px;
-  width: 12px;
-  height: 12px;
-  background-color: ${(props) => props.theme.color.brand.primary600};
+  width: 48px;
+  height: 96px;
+  background-color: transparent;
   top: ${(props) => `${props.y}px`};
   left: ${(props) => `${props.x}px`};
   cursor: pointer;
