@@ -289,7 +289,7 @@ export default {
       sensorList: [
         {
           title: "초미세먼지",
-          id: "dust",
+          id: "pm2_5",
           isSelected: false,
         },
         {
@@ -304,12 +304,12 @@ export default {
         },
         {
           title: "온도",
-          id: "temperature",
+          id: "temp",
           isSelected: false,
         },
         {
           title: "습도",
-          id: "humid",
+          id: "humi",
           isSelected: false,
         },
       ],
@@ -498,6 +498,8 @@ export default {
         return;
       }     
 
+      let sensorType = this.selectedSensor;
+
       var startDate = this.$refs.startDate.selectedDate;
       var endDate = this.$refs.endDate.selectedDate;
 
@@ -520,7 +522,7 @@ export default {
 
       let jsonAvgBusData = {
         requestSensorAvgData: {
-          sensorType: "pm2_5", //나중에 고쳐야 함.
+          sensorType: sensorType, 
           avgDate: avgDate,
           beginYear: startDate.getFullYear(),
           beginMonth: startDate.getMonth() + 1,
@@ -543,15 +545,13 @@ export default {
 
             let sensorAvgDataList = [];
 
-            for (let i of response.data.sensorAvgDatas) {
-              if(i.pm2_5 < 100000 && i.pm2_5 >=0)  { //에러값이 들어갈경우 걸러낸다. 
+            for (let i of response.data.sensorAvgDatas) {              
               let sensorAvgData = {
-                value: i.pm2_5,
-                type: "pm2_5",
+                value: i[sensorType],
+                type: sensorType,
                 date: i.date,
               };
-              sensorAvgDataList.push(sensorAvgData);
-              }              
+              sensorAvgDataList.push(sensorAvgData);              
             }
 
             avgChart.chart_config.axis.xTicks = sensorAvgDataList.length;

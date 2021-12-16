@@ -6,26 +6,26 @@
         currentMapStyle === 'mono' ? map_bg_dummy_mono : map_bg_dummy_satellite
       "
     >
-     <!-- Information -->
-    <BusEntity
-      v-for="(bus,index) in busDataDummy"
-      :key="index"
-      :number="bus.number"
-      :x="bus.location.x"
-      :y="bus.location.y"
-    />
-    <LocationInfoEntity
-      v-for="(location, index) in locationInfoDataDummy"
-      :key="index"
-      :title="location.title"
-      :dust="location.dust"
-      :no2="location.no2"
-      :o3="location.o3"
-      :temperature="location.temperature"
-      :humid="location.temperature"
-      :x="location.location.x"
-      :y="location.location.y"
-    />
+      <!-- Information -->
+      <BusEntity
+        v-for="(bus, index) in busDataDummy"
+        :key="index"
+        :number="bus.number"
+        :x="bus.location.x"
+        :y="bus.location.y"
+      />
+      <LocationInfoEntity
+        v-for="(location, index) in locationInfoDataDummy"
+        :key="index"
+        :title="location.title"
+        :dust="location.dust"
+        :no2="location.no2"
+        :o3="location.o3"
+        :temperature="location.temperature"
+        :humid="location.temperature"
+        :x="location.location.x"
+        :y="location.location.y"
+      />
       <MapControlled>
         <button>
           <img :src="ic_refresh" alt="" />
@@ -113,6 +113,7 @@ import BusEntity from "@/components/BustEntity/BusEntity";
 import map_bg_dummy from "../../assets/dummy/map_bg_mono.jpg";
 import styled from "vue-styled-components";
 import bus_route from "../../assets/route/BUS_ALL_12_09.json";
+import route_cell from "../../assets/route/cell_route_50.json";
 import proj4 from "proj4/dist/proj4";
 import HashMap from "hashmap";
 import axios from "axios";
@@ -138,7 +139,7 @@ import ic_map_layer from "../../assets/icon/layer.svg";
 import img_map_style_mono from "../../assets/img/img_map_style_mono.jpg";
 import img_map_style_satellite from "../../assets/img/img_map_style_satellite.jpg";
 
-var busMap = null;
+var busRouteMap = new HashMap();
 
 proj4.defs(
   "EPSG:5187",
@@ -186,7 +187,9 @@ var bus_lables = [];
 
 var facilityUrl = "./images/bus.png";
 
-var route_file_name = "./Assets/Routes/bus_route_sensor_15.json";
+//var route_file_name = "./Assets/Routes/bus_route_sensor_15.json";
+
+//var currentSensorList = null;
 
 function _updateSensors(viewer, sensorList) {
   for (let p of bus_pois) {
@@ -203,7 +206,7 @@ function _updateSensors(viewer, sensorList) {
     let busInfo = i.busInfo;
     let sensorInfo = i.sensorInfo;
 
-    var cart3 = Cartesian3.fromDegrees(sensorInfo.lon, sensorInfo.lat, 30);    
+    var cart3 = Cartesian3.fromDegrees(sensorInfo.lon, sensorInfo.lat, 30);
 
     let poi = viewer.entities.add({
       position: cart3,
@@ -212,32 +215,109 @@ function _updateSensors(viewer, sensorList) {
         heightReference: HeightReference.RELATIVE_TO_GROUND,
       },
       label: {
-      text: busInfo.routeNum.toString(),
-      font: "14pt 굴림",
-      style: LabelStyle.FILL_AND_OUTLINE,
-      outlineWidth: 2,
-      verticalOrigin: VerticalOrigin.BOTTOM,
-      pixelOffset: new Cartesian2(0, -40),
-      heightReference: HeightReference.RELATIVE_TO_GROUND,
-      fillColor : Color.RED
+        text: busInfo.routeNum.toString(),
+        font: "14pt 굴림",
+        style: LabelStyle.FILL_AND_OUTLINE,
+        outlineWidth: 2,
+        verticalOrigin: VerticalOrigin.BOTTOM,
+        pixelOffset: new Cartesian2(0, -40),
+        heightReference: HeightReference.RELATIVE_TO_GROUND,
+        fillColor: Color.RED,
       },
     });
     bus_pois.push(poi);
   }
 }
 
-function _updateRouteInfo(viewer) {
-  axios.defaults.headers = {
-  'Cache-Control': 'no-cache',
-  'Pragma': 'no-cache',
-  'Expires': '0',
-  };
+var cellRouteMap = new HashMap();
 
-  axios.get(route_file_name).then(function(response) {
-    console.log(response);
-  });
+//속도 측정용 함수
+var startTime, endTime;
+
+function startTimer() {
+  startTime = new Date();
 }
 
+function endTimer() {
+  endTime = new Date();
+  var timeDiff = endTime - startTime; //in ms
+  // strip the ms
+  timeDiff /= 1000;
+
+  // get seconds 
+  var seconds = Math.round(timeDiff);
+  console.log(timeDiff + " seconds");
+}
+
+function createCellRouteMap() {
+  for (let r of route_cell["cell_list"]) {
+    let cellId = r["id"];
+
+    let routeList = [];
+    for (let l of r["route_ids"]) {
+      routeList.push(l);
+    }
+
+    cellRouteMap.set(cellId, routeList);
+  }
+}
+
+//버스 경로의 색상 (오염도)를 업데이트 한다.
+function _updateRouteInfo(viewer, totalSensorList) {
+  startTimer();
+  let dest = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
+  let source = new proj4.Proj("EPSG:4326"); //위경도 좌표계
+
+  let cellStep = route_cell["cell_step"];
+  let cellSize = route_cell["cell_size"];
+  let boundLeft = route_cell["bound_left"];
+  let boundBottom = route_cell["bound_bottom"];
+
+  if (null != totalSensorList) {
+
+    let minValue = 1000000;
+    let maxValue = -1000000;
+
+    for (let sensor of totalSensorList) {
+      let p = { x: sensor.lon, y: sensor.lat };
+      let result = proj4(source, dest, p); //버스 경로 좌표계로 변환
+
+      let stepX = Math.floor((result.x - boundLeft) / cellStep);
+      let stepY = Math.floor((result.y - boundBottom) / cellStep);
+
+      let cellId = stepY * cellSize + stepX;
+      
+      if (cellRouteMap.has(cellId)) {
+        for (let routeId of cellRouteMap.get(cellId)) {
+          //route number
+          if (busRouteMap.has(routeId)) {
+            let line = busRouteMap.get(routeId);
+            let value = parseFloat(line.name); //line entity의 name을 값 저장소로 활용
+
+            minValue = Math.min(sensor.pm2_5, minValue);
+            maxValue = Math.max(sensor.pm2_5, maxValue);
+
+            line.name = ((value + sensor.pm2_5) * 0.5).toString();
+          }
+        }
+      }
+
+      console.log("route color updated");
+      endTimer();
+    }
+
+    //update line color
+    for (const pair of busRouteMap) {
+      let value = parseFloat(pair.value.name);
+
+      let hue = ((maxValue - value + minValue) / maxValue) * 180.0;
+
+      let color = Color.fromHsl(hue, 0.8, 0.5, 0.8);
+
+      pair.value.material = color;
+    }
+  }
+}
 
 const MapControlled = styled.div`
   position: fixed;
@@ -351,6 +431,53 @@ const ButtonMap = styled("button", ButtonProps)`
     background-color: rgba(0, 0, 0, 0.24);
   }
 `;
+
+function createBusRoute(viewer) {
+  let source = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
+  let dest = new proj4.Proj("EPSG:4326"); //위경도 좌표계
+
+  let features = bus_route["features"];
+
+  console.log(features);
+
+  for (let i = 0; i < features.length; i++) {
+    let bus_line_pos = [];
+    let feature = features[i];
+
+    let id = feature["properties"]["link_id"];
+
+    let j = 0;
+
+    for (j = 0; j < feature["geometry"]["coordinates"][0].length; j++) {
+      let co = feature["geometry"]["coordinates"][0][j];
+
+      let p = { x: co[0], y: co[1] };
+
+      //var pt = proj4.toPoint(co[0], co[1]); //포인트 생성
+
+      let result = proj4(source, dest, p); //위경도로 변환
+
+      let cart3 = Cartesian3.fromDegrees(result.x, result.y);
+      bus_line_pos.push(cart3);
+    }
+
+    if (bus_line_pos.length > 1) {
+      let colorHsl = Color.fromHsl(Math.random() * 0.3, 0.8, 0.5, 0.8);
+      let bus_line = viewer.entities.add({
+        name: "0", //value로 사용함
+        polyline: {
+          positions: bus_line_pos,
+          width: 10,
+          material: colorHsl,
+          clampToGround: true,
+        },
+      });
+
+      busRouteMap.set(id, bus_line);
+    }
+  }
+}
+
 ///////////////////////////////////////////
 
 export default {
@@ -362,7 +489,7 @@ export default {
     ButtonMap,
     Wrapper,
     LocationInfoEntity,
-    BusEntity
+    BusEntity,
   },
   props: ["sensorList"],
   data: function () {
@@ -457,12 +584,12 @@ export default {
   },
 
   methods: {
-    updateSensors(sensorList) {
-      _updateSensors(this.viewer, sensorList);
+    updateSensors(activeSensorList) {
+      _updateSensors(this.viewer, activeSensorList);
     },
-    updateRoute() {
-      _updateRouteInfo(this.viewer);
-    }
+    updateRoute(totalSensorList) {
+      _updateRouteInfo(this.viewer, totalSensorList);
+    },
   },
 
   created() {
@@ -472,7 +599,7 @@ export default {
 
   mounted() {
     console.log("Map mounted.");
-    
+
     // let x = bus_route["features"][0]['geometry']['coordinates'][0][0];
     // console.log(x);
     // let y = bus_route["features"][0]['geometry']['coordinates'][0][1];
@@ -488,8 +615,7 @@ export default {
     Camera.DEFAULT_VIEW_FACTOR = 0.05;
 
     // Cesium Viewer 초기화
-    if(this.$viewer != null)
-    {
+    if (this.$viewer != null) {
       this.viewer = this.$viewer;
       return;
     }
@@ -556,55 +682,17 @@ export default {
       },
     });
 
-    // let source = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
-    // let dest = new proj4.Proj("EPSG:4326"); //위경도 좌표계
-
-    // let features = bus_route["features"];
-
-    // console.log(features);
-
-    // for (let i = 0; i < features.length; i++) {
-    //   let bus_line_pos = [];
-    //   let feature = features[i];
-
-    //   let j = 0;
-
-    //   for (j = 0; j < feature["geometry"]["coordinates"][0].length; j++) {
-    //     let co = feature["geometry"]["coordinates"][0][j];
-
-    //     let p = { x: co[0], y: co[1] };
-
-    //     var pt = proj4.toPoint(co[0], co[1]); //포인트 생성
-
-    //     let result = proj4(source, dest, p); //위경도로 변환
-
-    //     let cart3 = Cartesian3.fromDegrees(result.x, result.y);
-    //     bus_line_pos.push(cart3);
-    //   }
-
-    //   if (bus_line_pos.length > 1) {        
-    //     let colorHsl = Color.fromHsl(Math.random() * 0.3, 0.8, 0.5, 0.8);
-    //     let bus_line = this.viewer.entities.add({
-    //       name: "Bus route line",
-    //       polyline: {
-    //         positions: bus_line_pos,
-    //         width: 10,
-    //         material: colorHsl,
-    //         clampToGround: true,
-    //       },
-    //     });
-    //   }
-    // }
+    createBusRoute(this.viewer);
+    createCellRouteMap();
   },
 
   beforeDestroy() {
     console.log("Map destroying..");
-    if (this.viewer != null) {      
+    if (this.viewer != null) {
       this.viewer.destroy();
-    }    
+    }
   },
 };
-
 </script>
 
 <style src="@/assets/cesium/Widgets/widgets.css"></style>

@@ -131,11 +131,15 @@ function requestData(home) {
       if (response.status == 200) {
         sensorMap.clear();
         console.log(response);
+
+        let totalSensorList = [];
+
         //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
         for (let i of response.data.sensorDatas) {
           //console.log("%f,%f",i.lat,i.lon);
           if (30 < i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
             sensorMap.set(i.serno, i);
+            totalSensorList.push(i);
           }
         }
 
@@ -173,7 +177,7 @@ function requestData(home) {
 
             activeSensorList.push(activeSensor);
 
-            console.log("노선:%d 버스:%d 센서ID:%s 먼지:%f 이산화질소:%f 오존:%f 온도:%f 습도:%f 위도:%f 경도:%f",busInfo.routeNum,busInfo.busNum,sensor.serno,sensor.pm2_5,sensor.no2,sensor.o3,sensor.temp,sensor.humi,sensor.lat,sensor.lon);
+            //console.log("노선:%d 버스:%d 센서ID:%s 먼지:%f 이산화질소:%f 오존:%f 온도:%f 습도:%f 위도:%f 경도:%f",busInfo.routeNum,busInfo.busNum,sensor.serno,sensor.pm2_5,sensor.no2,sensor.o3,sensor.temp,sensor.humi,sensor.lat,sensor.lon);
           } else {
             console.log("%s 센서가 연계된 버스 없음", sensor.serno);
           }
@@ -197,6 +201,7 @@ function requestData(home) {
         
         if(null != mapCanvas.$refs.mapCanvas || undefined != mapCanvas.$refs.mapCanvas) {
           mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+          mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
         }
       }
     });
