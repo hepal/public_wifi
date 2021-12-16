@@ -1,5 +1,10 @@
 <template>
   <div class="home">
+    <NavInteractive
+      :setCurrentScreen="setCurrentScreen"
+      :currentScreen="currentScreen"
+    />
+    {{currentScreen}}
     <!-- 맵 캔버스 -->
     <MapCanvas />
     <!-- 버르 루트정보 FAB -->
@@ -30,6 +35,16 @@
         :img="alarm.img"
       />
     </AlarmListContainer>
+    <!-- 스크린 -->
+    <ScreenContainer v-if="currentScreen==='STATISTIC'">
+      <Statistic/>
+    </ScreenContainer>
+    <ScreenContainer v-if="currentScreen==='SETTING'">
+      <Setting/>
+    </ScreenContainer>
+    <ScreenContainer v-if="currentScreen==='USERMANAGING'">
+      <ManageUser/>
+    </ScreenContainer>
     <!-- 모달 -->
     <Test>
       <button v-on:click="toggleAlertPop">상황전파 발생 테스트</button>
@@ -45,7 +60,11 @@
 <script>
 // @ is an alias to /src
 import styled from "vue-styled-components";
+import NavInteractive from '@/components/Nav/NavInteractive';
 import MapCanvas from "../components/MapCanvas/MapCanvas";
+import Statistic from '@/views/Statistic';
+import Setting from '@/views/Setting';
+import ManageUser from '@/views/ManageUser';
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
 import WarnAlarmList from "../components/AlarmList/WarnAlarmList/WarnAlarmList";
 import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
@@ -61,6 +80,16 @@ import ic_no2 from "../assets/icon/indicator/no2.svg";
 import ic_o3 from "../assets/icon/indicator/o3.svg";
 import ic_temp from "../assets/icon/indicator/temp.svg";
 import ic_route from "../assets/icon/route_detail/off.svg";
+
+const ScreenContainer = styled.div`
+  position: fixed;
+  z-index: 9;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  top: 0;
+  left: 0;
+`;
 
 const IndicatorContainer = styled.div`
   position: fixed;
@@ -130,7 +159,11 @@ export default {
   name: "Home",
   components: {
     MapCanvas,
+    Statistic,
+    Setting,
+    ManageUser,
     IndicatorContainer,
+    ScreenContainer,
     CardIndicator,
     AlarmListContainer,
     ButtonToggleRoute,
@@ -139,6 +172,7 @@ export default {
     AlertNoticeModal,
     Test,
     SubmitMsgModal,
+    NavInteractive,
   },
   methods: {
     togglePop() {
@@ -151,9 +185,15 @@ export default {
       this.isAlertNoticePop = false;
       this.isSubmitMsgPop = !this.isSubmitMsgPop;
     },
+    setCurrentScreen(screenName) {
+      this.currentScreen = screenName;
+    }
   },
   data() {
     return {
+      // 라우터 대신 사용할 현재 화면 값
+      // MAP, STATISTIC, SETTING, USERMANAGING
+      currentScreen:'MAP',
       // IMG
       ic_route,
       // STATE,

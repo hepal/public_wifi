@@ -1,9 +1,10 @@
 <template>
-  <Container :isSelected="isSelected">
-    <router-link :to="to">
+  <Container
+    v-on:click="setCurrentScreen(name)"
+    :isSelected="isSelected"
+  >
        <img :src="isSelected ? imgOn : imgOff" alt="" />
        {{ title }}
-    </router-link>
   </Container>
 </template>
 <script>
@@ -18,7 +19,9 @@ export default {
     imgOn: String,
     imgOff: String,
     title: String,
-    to: String
+    name: String,
+    to: String,
+    setCurrentScreen: Function
   },
 };
 </script>

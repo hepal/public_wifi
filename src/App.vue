@@ -1,15 +1,14 @@
 <template>
   <CustomThemeProvider>
-    <Nav />
     <div id="app">
-      <router-view />
+      <Home />
     </div>
   </CustomThemeProvider>
 </template>
 <script>
 import CustomThemeProvider from "./ThemeProvider";
 import theme from "./assets/theme/theme";
-import Nav from "./components/Nav/Nav";
+import Home from "./views/Home";
 import { injectGlobal } from "vue-styled-components";
 
 injectGlobal`
@@ -114,7 +113,7 @@ export default {
   name: "App",
   components: {
     CustomThemeProvider,
-    Nav,
+    Home
   },
 };
 </script>
