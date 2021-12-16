@@ -1,5 +1,10 @@
 <template>
   <div class="home">
+    <NavInteractive
+      :setCurrentScreen="setCurrentScreen"
+      :currentScreen="currentScreen"
+    />
+    {{currentScreen}}
     <!-- 맵 캔버스 -->
 
     <MapCanvas ref="mapCanvas"> </MapCanvas>
@@ -34,6 +39,16 @@
         :img="alarm.img"
       />
     </AlarmListContainer>
+    <!-- 스크린 -->
+    <ScreenContainer v-if="currentScreen==='STATISTIC'">
+      <Statistic/>
+    </ScreenContainer>
+    <ScreenContainer v-if="currentScreen==='SETTING'">
+      <Setting/>
+    </ScreenContainer>
+    <ScreenContainer v-if="currentScreen==='USERMANAGING'">
+      <ManageUser/>
+    </ScreenContainer>
     <!-- 모달 -->
     <Test>
       <button v-on:click="toggleAlertPop">상황전파 발생 테스트</button>
@@ -54,7 +69,11 @@ import HashMap from "hashmap";
 
 // @ is an alias to /src
 import styled from "vue-styled-components";
+import NavInteractive from '@/components/Nav/NavInteractive';
 import MapCanvas from "../components/MapCanvas/MapCanvas";
+import Statistic from '@/views/Statistic';
+import Setting from '@/views/Setting';
+import ManageUser from '@/views/ManageUser';
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
 import WarnAlarmList from "../components/AlarmList/WarnAlarmList/WarnAlarmList";
 import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
@@ -261,6 +280,16 @@ function pDistance(x, y, x1, y1, x2, y2) {
 
 import ic_route from "../assets/icon/route_detail/off.svg";
 
+const ScreenContainer = styled.div`
+  position: fixed;
+  z-index: 9;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  top: 0;
+  left: 0;
+`;
+
 const IndicatorContainer = styled.div`
   position: fixed;
   display: flex;
@@ -329,7 +358,11 @@ export default {
   name: "Home",
   components: {
     MapCanvas,
+    Statistic,
+    Setting,
+    ManageUser,
     IndicatorContainer,
+    ScreenContainer,
     CardIndicator,
     AlarmListContainer,
     ButtonToggleRoute,
@@ -338,6 +371,7 @@ export default {
     AlertNoticeModal,
     Test,
     SubmitMsgModal,
+    NavInteractive,
   },
   methods: {
     togglePop() {
@@ -365,8 +399,14 @@ export default {
       console.log("request bus data");
     },10000)
   },
+  setCurrentScreen(screenName) {
+      this.currentScreen = screenName;
+    },  
   data() {
     return {
+      // 라우터 대신 사용할 현재 화면 값
+      // MAP, STATISTIC, SETTING, USERMANAGING
+      currentScreen:'MAP',
       sensorList: sensorList,
       // IMG
       ic_route,
