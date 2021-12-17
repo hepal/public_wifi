@@ -33,21 +33,23 @@
       <SectionTiny>
         <label> 시작 날짜 </label>
         <div class="container">
-          <datepicker ref="startDate"
+          <datepicker
+            ref="startDate"
             :value="state.date"
-            :language="ko"            
+            :language="ko"
             @selected="dateSelected(this)"
-          ></datepicker>          
+          ></datepicker>
         </div>
       </SectionTiny>
       <SectionTiny>
         <label> 종료 날짜 </label>
         <div class="container">
-          <datepicker ref="endDate"
+          <datepicker
+            ref="endDate"
             :value="state.date"
-            :language="ko"            
+            :language="ko"
             @selected="dateSelected(this)"
-          ></datepicker>          
+          ></datepicker>
           <!--
           <select v-if="selectedDataType === '주평균'">
             <option v-for="(week, index) in recentWeekList" :key="index">
@@ -62,7 +64,14 @@
           -->
         </div>
       </SectionTiny>
-      <Button :onClick="() => {onClickQuery();}" type="PrimaryFilled">
+      <Button
+        :onClick="
+          () => {
+            onClickQuery();
+          }
+        "
+        type="PrimaryFilled"
+      >
         <img :src="ic_search" alt="" />
         조회
       </Button>
@@ -75,7 +84,7 @@
       ></D3LineChart>
     </Chart>
     <TableContainer>
-      <SensorTableText :tableData="sensorDataDummy" />
+      <SensorTableText ref="sensorTable" :tableData="sensorDataDummy" />
     </TableContainer>
     <ActionBar>
       <Button :onClick="() => {}" type="GrayOutlined"
@@ -486,8 +495,8 @@ export default {
   created: function () {
       avgChart = this;
     },
-  methods: {        
-    dateSelected(e) {      
+  methods: {
+    dateSelected(e) {
 
     },
     toggleDeletePop() {
@@ -496,7 +505,7 @@ export default {
     onClickQuery() {
       if(this.selectedSensor == undefined || this.selectedDataType == undefined) {
         return;
-      }     
+      }
 
       let sensorType = this.selectedSensor;
 
@@ -522,7 +531,7 @@ export default {
 
       let jsonAvgBusData = {
         requestSensorAvgData: {
-          sensorType: sensorType, 
+          sensorType: sensorType,
           avgDate: avgDate,
           beginYear: startDate.getFullYear(),
           beginMonth: startDate.getMonth() + 1,
@@ -531,7 +540,7 @@ export default {
           endMonth: endDate.getMonth() + 1,
           endDay: endDate.getDate(),
         },
-      };      
+      };
 
 
       axios
@@ -539,29 +548,45 @@ export default {
           headers: { "Content-Type": "application/json" },
         })
         .then(function (response) {
-          if (response.status == 200) {            
+          if (response.status == 200) {
             console.log(response);
             //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
 
-            let sensorAvgDataList = [];
+            let sensorAvgDataForChartList = [];
+            let sensorAvgDataForTableList = [];
 
-            for (let i of response.data.sensorAvgDatas) {      
+            for (let i of response.data.sensorAvgDatas) {
               let value = i[sensorType];
 
               if(sensorType == 'no2') { //이산화 질소는 1/1000
                 value = value / 1000;
               }
-              
-              let sensorAvgData = {
+
+              let sensorAvgDataForChart = {
                 value: value,
                 type: sensorType,
                 date: i.date,
               };
-              sensorAvgDataList.push(sensorAvgData);              
+
+              // let sensorAvgDataForTable = {
+              //   date: i.date,
+              //   title: 
+              // };
+
+              sensorAvgDataForChartList.push(sensorAvgDataForChart);
             }
 
-            avgChart.chart_config.axis.xTicks = sensorAvgDataList.length;
-            avgChart.sensorGraphDummyData = sensorAvgDataList;
+            avgChart.chart_config.axis.xTicks = sensorAvgDataForChartList.length;
+            avgChart.sensorGraphDummyData = sensorAvgDataForChartList;
+          //   data: [
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+            //avgChart.sensorDataDummy.data =
           }
         });
     },
