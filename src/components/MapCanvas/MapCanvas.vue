@@ -187,9 +187,12 @@ function setMarkerInPos(positionCartographic, viewer) {
 
 //버스 poi 리스트
 var bus_pois = [];
-var bus_infos = [];
-var bus_locations = [];
 var bus_lables = [];
+//버스 정보 리스트
+var bus_infos = []; //버스 정보
+var bus_locations = []; //버스 위치 정보
+var bus_sensor_infos = []; //버스 센서 정보
+
 var cesiumViewer = null;
 var facilityUrl = "./images/bus.png";
 
@@ -217,6 +220,7 @@ function _updateMapLayer(viewer, currentMapStyle) {
 function _updateSensors(viewer, sensorList) {
   bus_infos = [];
   bus_locations = [];
+  bus_sensor_infos = [];
 
   for (let p of bus_pois) {
     viewer.entities.remove(p);
@@ -235,7 +239,7 @@ function _updateSensors(viewer, sensorList) {
     var cart3 = Cartesian3.fromDegrees(sensorInfo.lon, sensorInfo.lat, 30);
 
     let poi = viewer.entities.add({
-      name : busInfo.busNum,
+      name: busInfo.busNum,
       position: cart3,
       billboard: {
         image: bus_icon,
@@ -255,6 +259,7 @@ function _updateSensors(viewer, sensorList) {
     bus_pois.push(poi);
     bus_infos.push(busInfo);
     bus_locations.push(cart3);
+    bus_sensor_infos.push(sensorInfo);
     //let screenPos = SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, cart3);
   }
 }
@@ -627,7 +632,7 @@ export default {
             x: 500,
             y: 240,
           },
-        },        
+        },
       ],
     };
   },
@@ -717,12 +722,29 @@ export default {
       if (CesiumDefined(selectedEntity)) {
         if (CesiumDefined(selectedEntity.name)) {
           console.log("Selected " + selectedEntity.name);
-          
+
+          // let bus = {
+          //   compName: busInfo.CompanyName,
+          //   routeNum: busInfo.RouteNumber,
+          //   busNum: busInfo.BusNumber,
+          // };
+
           let counter = 0;
-          for(let b of bus_infos) {
-            if(b.busNum == selectedEntity.name) {
+          for (let b of bus_infos) {
+            if (b.busNum == selectedEntity.name) {
               console.log(b);
-              let cart2 = SceneTransforms.wgs84ToWindowCoordinates(cesiumViewer.scene, bus_locations[counter]);
+              let cart2 = SceneTransforms.wgs84ToWindowCoordinates(
+                cesiumViewer.scene,
+                bus_locations[counter]
+              );
+              let busInfo = bus_infos[counter];
+              let sensorInfo = bus_sensor_infos[counter];
+
+              locationInfoData[0].locationName = "";
+              locationInfoData[0].dust = sensorInfo.pm2_5;
+              locationInfoData[0].no2 = sensorInfo.no2;
+              locationInfoData[0].temperature = sensorInfo.temp;
+              locationInfoData[0].humid = sensorInfo.humi;
               locationInfoData[0].location.x = cart2.x + 70;
               locationInfoData[0].location.y = cart2.y - 60;
               break;
