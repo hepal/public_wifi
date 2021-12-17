@@ -445,6 +445,7 @@ export default {
 
         values: ["value"],
         axis: {
+          yFormat: "2s",
           xTicks: 10,
           yTicks: 4,
         },
