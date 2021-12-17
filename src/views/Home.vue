@@ -42,8 +42,8 @@
     <ScreenContainer v-if="currentScreen === 'STATISTIC'">
       <Statistic />
     </ScreenContainer>
-    <ScreenContainer v-if="currentScreen === 'SETTING'">
-      <Setting />
+    <ScreenContainer ref="settingSlideContainer" v-if="currentScreen === 'SETTING'">
+      <Setting ref="settingSlide" />
     </ScreenContainer>
     <ScreenContainer v-if="currentScreen === 'USERMANAGING'">
       <ManageUser />
@@ -250,6 +250,8 @@ function requestData(home, fullData) {
           undefined != mapCanvas.$refs.mapCanvas
         ) {
           mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+
+          //mapCanvas.$refs.settingSlide.updateSensorState(activeSensorList);
 
           if(fullData)
             mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);

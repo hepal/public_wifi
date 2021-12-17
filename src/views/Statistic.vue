@@ -347,69 +347,69 @@ export default {
           "발행시간",
         ],
         data: [
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
-          {
-            date: "21.10.1 14:20:11",
-            title: "초미세먼지",
-            statusLevel: "좋음",
-            alertLevel: "주의보",
-            time: "10:00:10",
-          },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
+          // {
+          //   date: "21.10.1 14:20:11",
+          //   title: "초미세먼지",
+          //   statusLevel: "좋음",
+          //   alertLevel: "주의보",
+          //   time: "10:00:10",
+          // },
         ],
       },
       recentWeekList: [
@@ -550,6 +550,7 @@ export default {
         .then(function (response) {
           if (response.status == 200) {
             console.log(response);
+            let date = new Date();
             //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
 
             let sensorAvgDataForChartList = [];
@@ -566,14 +567,18 @@ export default {
                 value: value,
                 type: sensorType,
                 date: i.date,
+              };              
+
+              let sensorAvgDataForTable = {
+                date: i.date,
+                title: sensorType,                
+                statusLevel: "좋음",
+                alertLevel: "주의보",
+                time: date.toString(),
               };
 
-              // let sensorAvgDataForTable = {
-              //   date: i.date,
-              //   title: 
-              // };
-
               sensorAvgDataForChartList.push(sensorAvgDataForChart);
+              sensorAvgDataForTableList.push(sensorAvgDataForTable);
             }
 
             avgChart.chart_config.axis.xTicks = sensorAvgDataForChartList.length;
@@ -586,7 +591,7 @@ export default {
           //   alertLevel: "주의보",
           //   time: "10:00:10",
           // },
-            //avgChart.sensorDataDummy.data =
+          //  avgChart.sensorDataDummy.data =sensorAvgDataForTableList;
           }
         });
     },

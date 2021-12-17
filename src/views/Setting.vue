@@ -1,6 +1,6 @@
 <template>
   <Container>
-    <SettingSlide />
+    <SettingSlide ref="settingSlide" />
   </Container>
 </template>
 <script>
@@ -11,11 +11,20 @@ const Container = styled.div`
   width: 100%;
 `;
 
+var settingSlideInstance = null;
+
+function updateSensorState(activeSensorList) {
+  settingSlideInstance.$refs.settingSlide.updateSensorState(activeSensorList);
+}
+
 export default{
   name: "Setting",
   components: {
     SettingSlide,
     Container
+  },
+  created: function () {
+    settingSlideInstance = this;
   },
   data() {
     return {
