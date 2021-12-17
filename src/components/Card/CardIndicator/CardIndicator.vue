@@ -1,5 +1,8 @@
 <template>
-  <Container>
+  <Container
+    :isSelected="isSelected"
+    v-on:click="setCurretIndicator(id)"
+  >
     <div class="top">
       <img :src="img" alt='' />
       <span>{{title}}</span>
@@ -26,7 +29,9 @@ export default {
     img: String,
     value: Number,
     unit: String,
-    isSelected: Boolean
+    isSelected: Boolean,
+    id: String,
+    setCurretIndicator: Function
   }
 }
 </script>

@@ -14,6 +14,7 @@ const Container = styled.div`
   .section{
     display: flex;
     height: 100%;
+    text-align: left;
     align-items: center;
     img{
       margin-right: 24px;
