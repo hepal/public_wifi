@@ -3,7 +3,7 @@
     <h3>사용자 검색</h3>
     <Top>
       <Section>
-        <label> 센서 선택 </label>
+        <label> 측정기 선택 </label>
         <div class="container">
           <div class="radio" v-for="(sensor, index) in sensorList" :key="index">
             <input
@@ -329,13 +329,13 @@ export default {
           isSelected: false,
         },
       ],
-      // 센서데이터 더미
+      // 측정기데이터 더미
       sensorDataDummy: {
         header: [
           "NO",
           "일시",
-          "센서 타입",
-          "센서지수 등급",
+          "측정기 타입",
+          "측정기지수 등급",
           "경보단계",
           "발행시간",
         ],
