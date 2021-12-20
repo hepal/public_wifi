@@ -1,6 +1,7 @@
 <template>
   <div>
     <div id="cesiumContainer"></div>
+    <cesium-compass></cesium-compass>
     <Container
       :bg="
         currentMapStyle === 'mono' ? map_bg_dummy_mono : map_bg_dummy_satellite
@@ -109,6 +110,7 @@ import {
   SceneTransforms,
 } from "cesium";
 
+import "@geoblocks/cesium-compass";
 import Container from "./Container";
 import LocationInfoEntity from "@/components/LocationInfoEntity/LocationInfoEntity";
 import BusEntity from "@/components/BustEntity/BusEntity";
@@ -694,7 +696,10 @@ export default {
       timeline: false,
       navigationHelpButton: false,
       navigationInstructionsInitiallyVisible: false,
-      animation: true,
+      baseLayerPicker: false,
+      homeButton: false,
+      sceneModePicker : false,
+      animation: false,      
       // 세슘 Ion 지형 사용시
       terrainProvider: createWorldTerrain(),
     });
@@ -789,7 +794,11 @@ export default {
         heading: CesiumMath.toRadians(0.0),
         pitch: CesiumMath.toRadians(-15.0),
       },
-    });
+    });    
+
+    const compass = document.querySelector('cesium-compass');
+    compass.scene = this.viewer.scene;
+    compass.clock = this.viewer.clock;
 
     createBusRoute(this.viewer);
     createCellRouteMap();
@@ -817,13 +826,23 @@ export default {
 <style>
 #cesiumContainer {
   height: 100vh;
-  margin-left: 100px;
   overflow: hidden;
   position: relative;
+  @media (hover: hover) and (pointer: fine) {
+    margin-left: 100px;
+  }  
 }
 .cesium-viewer {
   width: 100%;
   height: 100%;
   position: absolute !important;
 }
+
+cesium-compass {
+      position: absolute;
+      right: 30px;
+      top: 80px;
+      --cesium-compass-stroke-color:rgba(0, 0, 0, 0.6);
+      --cesium-compass-fill-color: rgb(224, 225, 226);
+    }
 </style>
