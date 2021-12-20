@@ -840,8 +840,8 @@ export default {
 
 cesium-compass {
       position: absolute;
-      right: 30px;
-      top: 80px;
+      right: 1vh;
+      top: 5vh;
       --cesium-compass-stroke-color:rgba(0, 0, 0, 0.6);
       --cesium-compass-fill-color: rgb(224, 225, 226);
     }
