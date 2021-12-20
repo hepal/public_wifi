@@ -1,6 +1,9 @@
 <template>
-  <Container @click.native="testFunction(sensoeId)">
-    <div class="top" >
+  <Container
+    :isSelected="isSelected"
+    v-on:click="setCurretIndicator(id)"
+  >
+    <div class="top">
       <img :src="img" alt='' />
       <span>{{title}}</span>
     </div>
@@ -31,13 +34,9 @@ export default {
     img: String,
     value: Number,
     unit: String,
-    isSelected: Boolean
-  },
-  methods: {
-    testFunction : function(event) {
-      console.log(event)      
-      this.$emit("requestSensorData",event)
-    },
+    isSelected: Boolean,
+    id: String,
+    setCurretIndicator: Function
   }
 }
 </script>

@@ -25,6 +25,9 @@
         :img="indicator.img"
         :value="indicator.value"
         :unit="indicator.unit"
+        :isSelected="indicator.id === currentIndictor"
+        :setCurretIndicator="setCurretIndicator"
+        :id="indicator.id"
       />
     </IndicatorContainer>
     <!-- 경보 알람리스트 정보 영역 -->
@@ -76,6 +79,7 @@ import ManageUser from "@/views/ManageUser";
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
 import WarnAlarmList from "../components/AlarmList/WarnAlarmList/WarnAlarmList";
 import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
+import { TYPE } from "../globalConst/indicatorCode";
 
 // Modal
 import AlertNoticeModal from "@/components/Modal/AlertNoticeModal/AlertNoticeModal";
@@ -437,9 +441,13 @@ export default {
     setCurrentScreen(screenName) {
       this.currentScreen = screenName;
     },
+    setCurretIndicator(code) {
+      this.currentIndictor = code;
+    }
   },
   data() {
     return {
+      TYPE,
       // 라우터 대신 사용할 현재 화면 값
       // MAP, STATISTIC, SETTING, USERMANAGING
       currentScreen: "MAP",
@@ -452,10 +460,13 @@ export default {
       isAlertNoticePop: false,
       // 상황전파 팝업
       isSubmitMsgPop: false,
+      // CURRENT INDICATOR
+      currentIndictor: TYPE.DUST,
       // DATA DUMMY
       indicatorListDummy: [
         {
-          id: "pm2_5",
+
+          id: TYPE.DUST,
           title: "초미세먼지",
           unit: "㎍/㎥",
           value: sensorAvgValues.dust,
@@ -463,7 +474,7 @@ export default {
           isSelected: false,
         },
         {
-          id: "no2",
+          id: TYPE.NO2,
           title: "이산화질소(NO2)",
           unit: "ppm",
           value: sensorAvgValues.no2 / 1000,
@@ -471,7 +482,7 @@ export default {
           isSelected: false,
         },
         {
-          id: "o3",
+          id: TYPE.O3,
           title: "오존(O3)",
           unit: "ppm",
           value: sensorAvgValues.o3 / 1000,
@@ -479,7 +490,7 @@ export default {
           isSelected: false,
         },
         {
-          id: "temp",
+          id: TYPE.TEMPERATURE,
           title: "온도",
           unit: "°C",
           value: sensorAvgValues.temp,
@@ -487,7 +498,7 @@ export default {
           isSelected: false,
         },
         {
-          id: "humi",
+          id: TYPE.HUMID,
           title: "습도",
           unit: "%",
           value: sensorAvgValues.humid,
@@ -530,6 +541,6 @@ export default {
         // },
       ],
     };
-  },
+  }
 };
 </script>

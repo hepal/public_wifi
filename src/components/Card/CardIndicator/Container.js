@@ -1,7 +1,10 @@
 import styled from 'vue-styled-components';
 
-const Container = styled.div`
+const Props = { isSelected:Boolean };
+
+const Container = styled('div',Props)`
   position: relative;
+  cursor: pointer;
   width: 173px;
   height: 108px;
   border-radius: 4px;
@@ -43,6 +46,9 @@ const Container = styled.div`
     width: 8px;
     height: 100%;
     background-color: ${props => props.isSelected ? props.theme.color.ui.selected : props.theme.color.ui.enabled};
+  }
+  :hover{
+    background-color: ${props => props.theme.color.ui.white500};
   }
   @media only screen and (max-width: 480px) {
     width: calc((100% - 32px)/5);
