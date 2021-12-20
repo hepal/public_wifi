@@ -45,7 +45,10 @@
     <ScreenContainer v-if="currentScreen === 'STATISTIC'">
       <Statistic />
     </ScreenContainer>
-    <ScreenContainer ref="settingSlideContainer" v-if="currentScreen === 'SETTING'">
+    <ScreenContainer
+      ref="settingSlideContainer"
+      v-if="currentScreen === 'SETTING'"
+    >
       <Setting ref="settingSlide" />
     </ScreenContainer>
     <ScreenContainer v-if="currentScreen === 'USERMANAGING'">
@@ -53,7 +56,9 @@
     </ScreenContainer>
     <!-- 모달 -->
     <Test>
-      <button v-show="false" v-on:click="toggleAlertPop">상황전파 발생 테스트</button>
+      <button v-show="false" v-on:click="toggleAlertPop">
+        상황전파 발생 테스트
+      </button>
     </Test>
     <AlertNoticeModal
       v-if="isAlertNoticePop"
@@ -228,10 +233,10 @@ function requestData(home, fullData) {
             tsa.dust / sensorList.length
           );
           mapCanvas.indicatorListDummy[1].value = roundToTwo(
-            (tsa.no2 / sensorList.length) /1000.0 //이산화질소는 1/1000 으로 줄여야 한다.
+            tsa.no2 / sensorList.length / 1000.0 //이산화질소는 1/1000 으로 줄여야 한다.
           );
           mapCanvas.indicatorListDummy[2].value = roundToTwo(
-            (tsa.o3 / sensorList.length) / 1000.0 //오존은 1/1000 으로 줄여야 한다.
+            tsa.o3 / sensorList.length / 1000.0 //오존은 1/1000 으로 줄여야 한다.
           );
           mapCanvas.indicatorListDummy[3].value = roundToTwo(
             tsa.temp / sensorList.length
@@ -257,8 +262,7 @@ function requestData(home, fullData) {
 
           //mapCanvas.$refs.settingSlide.updateSensorState(activeSensorList);
 
-          if(fullData)
-            mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
+          if (fullData) mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
         }
       }
     });
@@ -434,16 +438,34 @@ export default {
     getSensorData() {
       requestData(this);
     },
-    getRouteData(sensorType) {
-      requestRouteData(this, sensorType);
-      requestData(this, true);
-    },
+    getRouteData(sensorType) {},
     setCurrentScreen(screenName) {
       this.currentScreen = screenName;
     },
     setCurretIndicator(code) {
       this.currentIndictor = code;
-    }
+
+      //code를 json 호술시 사용하는 것으로 변경
+
+      let jsonCode = "";
+
+      switch (code) {
+        case "dust":
+          jsonCode = "pm2_5";
+          break;
+        case "humid":
+          jsonCode = "humi";
+          break;
+        case "temperature":
+          jsonCode = "temp";
+          break;
+        default:
+          jsonCode = code;
+      }
+
+      requestRouteData(this, jsonCode);
+      requestData(this, true);
+    },
   },
   data() {
     return {
@@ -465,7 +487,6 @@ export default {
       // DATA DUMMY
       indicatorListDummy: [
         {
-
           id: TYPE.DUST,
           title: "초미세먼지",
           unit: "㎍/㎥",
@@ -541,6 +562,6 @@ export default {
         // },
       ],
     };
-  }
+  },
 };
 </script>
