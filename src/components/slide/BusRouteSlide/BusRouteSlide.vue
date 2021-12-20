@@ -520,8 +520,8 @@ export default {
                 busNumber: format("{0}({1})", busInfo.busNum, busInfo.routeNum),
                 data: [
                   { type: TYPE.DUST, value: sensorInfo.pm2_5 },
-                  { type: TYPE.NO2, value: roundToTwo(sensorInfo.no2 / 1000)},
-                  { type: TYPE.O3, value: sensorInfo.o3 },
+                  { type: TYPE.NO2, value: roundToTwo(sensorInfo.no2 / 1000)}, //이산화 질소, 오존은 1/1000으로 바꿔야 함.
+                  { type: TYPE.O3, value: roundToTwo(sensorInfo.o3 / 1000) }, 
                   { type: TYPE.TEMPERATURE, value: sensorInfo.temp },
                   { type: TYPE.HUMID, value: sensorInfo.humi },
                 ],

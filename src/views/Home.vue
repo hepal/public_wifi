@@ -224,10 +224,10 @@ function requestData(home, fullData) {
             tsa.dust / sensorList.length
           );
           mapCanvas.indicatorListDummy[1].value = roundToTwo(
-            (tsa.no2 / sensorList.length) * 0.0001 //이산화질소는 1/1000 로 줄여야 한다.
+            (tsa.no2 / sensorList.length) /1000.0 //이산화질소는 1/1000 으로 줄여야 한다.
           );
           mapCanvas.indicatorListDummy[2].value = roundToTwo(
-            tsa.o3 / sensorList.length
+            (tsa.o3 / sensorList.length) / 1000.0 //오존은 1/1000 으로 줄여야 한다.
           );
           mapCanvas.indicatorListDummy[3].value = roundToTwo(
             tsa.temp / sensorList.length
@@ -466,7 +466,7 @@ export default {
           id: "no2",
           title: "이산화질소(NO2)",
           unit: "ppm",
-          value: sensorAvgValues.no2,
+          value: sensorAvgValues.no2 / 1000,
           img: ic_no2,
           isSelected: false,
         },
@@ -474,7 +474,7 @@ export default {
           id: "o3",
           title: "오존(O3)",
           unit: "ppm",
-          value: sensorAvgValues.o3,
+          value: sensorAvgValues.o3 / 1000,
           img: ic_o3,
           isSelected: false,
         },

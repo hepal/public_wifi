@@ -198,6 +198,10 @@ var facilityUrl = "./images/bus.png";
 
 //var route_file_name = "./Assets/Routes/bus_route_sensor_15.json";
 
+function roundToTwo(num) {
+  return +(Math.round(num + "e+2") + "e-2");
+}
+
 //var currentSensorList = null;
 function _updateMapLayer(viewer, currentMapStyle) {
   let layers = viewer.scene.imageryLayers;
@@ -373,7 +377,8 @@ function _updateRouteInfo(viewer, totalSensorList) {
           case "pm2_5":
             hue = Math.max(0, ((75 - value) / 75) * 0.666667); //(0~240)도
             break;
-          case "o3":
+          case "o3": 
+          value = value / 1000; //o3도 1/1000 로 줄임
             hue = Math.max(0, ((0.2 - value) / 0.2) * 0.666667); //(0~240)도
             break;
           case "no2":
@@ -742,8 +747,9 @@ export default {
 
               locationInfoData[0].locationName = "";
               locationInfoData[0].dust = sensorInfo.pm2_5;
-              locationInfoData[0].no2 = sensorInfo.no2;
-              locationInfoData[0].temperature = sensorInfo.temp;
+              locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
+              locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
+              locationInfoData[0].temperature = sensorInfo.temp; 
               locationInfoData[0].humid = sensorInfo.humi;
               locationInfoData[0].location.x = cart2.x + 70;
               locationInfoData[0].location.y = cart2.y - 60;

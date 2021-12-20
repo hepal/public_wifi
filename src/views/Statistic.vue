@@ -562,6 +562,8 @@ export default {
 
               if(sensorType == 'no2') { //이산화 질소는 1/1000
                 value = value / 1000;
+              } else if(sensorType == 'o3') { //오존도 1/1000
+                value = value / 1000;
               }
 
               let sensorAvgDataForChart = {
