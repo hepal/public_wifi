@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="cesiumContainer"></div>
-    <cesium-compass></cesium-compass>
+    <cesium-compass id="compass"></cesium-compass>
     <Container
       :bg="
         currentMapStyle === 'mono' ? map_bg_dummy_mono : map_bg_dummy_satellite
@@ -379,8 +379,8 @@ function _updateRouteInfo(viewer, totalSensorList) {
           case "pm2_5":
             hue = Math.max(0, ((75 - value) / 75) * 0.666667); //(0~240)도
             break;
-          case "o3": 
-          value = value / 1000; //o3도 1/1000 로 줄임
+          case "o3":
+            value = value / 1000; //o3도 1/1000 로 줄임
             hue = Math.max(0, ((0.2 - value) / 0.2) * 0.666667); //(0~240)도
             break;
           case "no2":
@@ -569,6 +569,23 @@ function createBusRoute(viewer) {
   }
 }
 
+function device_check() {
+  // 디바이스 종류 설정
+  let pc_device = "win16|win32|win64|mac|macintel";
+
+  // 접속한 디바이스 환경
+  let this_device =
+    navigator?.userAgentData?.platform || navigator?.platform || "unknown";
+
+  if (this_device) {
+    if (pc_device.indexOf(this_device.toLowerCase()) < 0) {
+      return "MOBILE";
+    } else {
+      return "PC";
+    }
+  }
+}
+
 var activeSensorType = "pm2_5";
 
 var osm = null;
@@ -698,8 +715,8 @@ export default {
       navigationInstructionsInitiallyVisible: false,
       baseLayerPicker: false,
       homeButton: false,
-      sceneModePicker : false,
-      animation: false,      
+      sceneModePicker: false,
+      animation: false,
       // 세슘 Ion 지형 사용시
       terrainProvider: createWorldTerrain(),
     });
@@ -733,12 +750,6 @@ export default {
         if (CesiumDefined(selectedEntity.name)) {
           console.log("Selected " + selectedEntity.name);
 
-          // let bus = {
-          //   compName: busInfo.CompanyName,
-          //   routeNum: busInfo.RouteNumber,
-          //   busNum: busInfo.BusNumber,
-          // };
-
           let counter = 0;
           for (let b of bus_infos) {
             if (b.busNum == selectedEntity.name) {
@@ -754,9 +765,9 @@ export default {
               locationInfoData[0].dust = sensorInfo.pm2_5;
               locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
               locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
-              locationInfoData[0].temperature = sensorInfo.temp; 
+              locationInfoData[0].temperature = sensorInfo.temp;
               locationInfoData[0].humid = sensorInfo.humi;
-              locationInfoData[0].location.x = cart2.x + 70;
+              locationInfoData[0].location.x = cart2.x - 40;
               locationInfoData[0].location.y = cart2.y - 60;
               break;
             }
@@ -794,22 +805,31 @@ export default {
         heading: CesiumMath.toRadians(0.0),
         pitch: CesiumMath.toRadians(-15.0),
       },
-    });    
+    });
 
-    const compass = document.querySelector('cesium-compass');
+    const compass = document.querySelector("cesium-compass");
     compass.scene = this.viewer.scene;
     compass.clock = this.viewer.clock;
 
     createBusRoute(this.viewer);
     createCellRouteMap();
 
-    var handler = new ScreenSpaceEventHandler(cesiumViewer.scene.canvas);
+    //pc와 mobile의 compass 위치를 다르게 한다.
+    let device = device_check();
 
-    handler.setInputAction(function (movement) {
-      // for(let p of bus_positions) {
-      //   console.log(SceneTransforms.wgs84ToWindowCoordinates(cesiumViewer.scene, p));
-      // }
-    }, ScreenSpaceEventType.MOUSE_MOVE);
+    if ("PC" == device) {
+      let compass = document.getElementById("compass");
+
+      compass.style.top = "80px";
+    }
+
+    // var handler = new ScreenSpaceEventHandler(cesiumViewer.scene.canvas);
+
+    // handler.setInputAction(function (movement) {
+    //   // for(let p of bus_positions) {
+    //   //   console.log(SceneTransforms.wgs84ToWindowCoordinates(cesiumViewer.scene, p));
+    //   // }
+    // }, ScreenSpaceEventType.MOUSE_MOVE);
   },
 
   beforeDestroy() {
@@ -830,7 +850,7 @@ export default {
   position: relative;
   @media (hover: hover) and (pointer: fine) {
     margin-left: 100px;
-  }  
+  }
 }
 .cesium-viewer {
   width: 100%;
@@ -839,10 +859,10 @@ export default {
 }
 
 cesium-compass {
-      position: absolute;
-      right: 1vh;
-      top: 5vh;
-      --cesium-compass-stroke-color:rgba(0, 0, 0, 0.6);
-      --cesium-compass-fill-color: rgb(224, 225, 226);
-    }
+  position: absolute;
+  right: 0px;
+  top: 20px;
+  --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
+  --cesium-compass-fill-color: rgb(224, 225, 226);
+}
 </style>
