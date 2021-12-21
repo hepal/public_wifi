@@ -68,6 +68,17 @@ const Container = styled("div", ContainerProps)`
   cursor: pointer;
 `;
 
+// const Container = styled("div", ContainerProps)`
+//   position: absolute;
+//   border-radius: 6px;
+//   width: 48px;
+//   height: 96px;
+//   background-color:  ${(props) => props.theme.color.brand.primary600};
+//   top: ${(props) => `${props.y}px`};
+//   left: ${(props) => `${props.x}px`};
+//   cursor: pointer;
+// `;
+
 const Info = styled.div`
   position: absolute;
   top: 0;

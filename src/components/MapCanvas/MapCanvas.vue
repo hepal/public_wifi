@@ -750,6 +750,8 @@ export default {
         if (CesiumDefined(selectedEntity.name)) {
           console.log("Selected " + selectedEntity.name);
 
+          let device = device_check();
+    
           let counter = 0;
           for (let b of bus_infos) {
             if (b.busNum == selectedEntity.name) {
@@ -767,7 +769,12 @@ export default {
               locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
               locationInfoData[0].temperature = sensorInfo.temp;
               locationInfoData[0].humid = sensorInfo.humi;
-              locationInfoData[0].location.x = cart2.x - 40;
+              if ("PC" == device) {
+                locationInfoData[0].location.x = cart2.x - 20;
+              } else { 
+                locationInfoData[0].location.x = cart2.x - 20;
+              }
+              
               locationInfoData[0].location.y = cart2.y - 60;
               break;
             }
