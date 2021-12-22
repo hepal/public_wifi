@@ -15,8 +15,23 @@ module.exports = {
     "vuetify"
   ],
   devServer: {
-    proxy: 'http://210.90.145.70:12000',
-    
+    disableHostCheck: true,
+    host: '192.168.0.5',          //local ip
+        port: 8080,        
+        historyApiFallback: true,
+        inline: true,
+    proxy : {
+      '/Sensor' : {
+        target: 'http://210.90.145.70:12000',
+        changeOrigin: true,        
+      }, 
+      '/req' : {
+        target: 'http://api.vworld.kr',
+        secure: false,
+        changeOrigin: true,        
+        pathRewrite: { '^/req': '' },
+      },    
+    }    
   },
   configureWebpack: {
 

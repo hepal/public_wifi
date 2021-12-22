@@ -18,8 +18,9 @@
       <LocationInfoEntity
         ref="locationInfo"
         v-for="(location, index) in locationInfoDataDummy"
-        :key="index"
+        :key="index"        
         :title="location.title"
+        :locationName ="location.locationName"
         :dust="location.dust"
         :no2="location.no2"
         :o3="location.o3"
@@ -587,7 +588,7 @@ function device_check() {
 }
 
 var activeSensorType = "pm2_5";
-
+var component = null;
 var osm = null;
 var bing = null;
 var locationInfoData = [];
@@ -646,7 +647,7 @@ export default {
       ],
       locationInfoDataDummy: [
         {
-          locationName: "대구광역시 OOO동",
+          locationName: "대구광역시 OOO동",          
           dust: 0.001,
           no2: 0.012,
           o3: 0.01,
@@ -682,6 +683,7 @@ export default {
   },
 
   mounted() {
+    component = this;
     console.log("Map mounted.");
 
     // let x = bus_route["features"][0]['geometry']['coordinates'][0][0];
@@ -751,31 +753,93 @@ export default {
           console.log("Selected " + selectedEntity.name);
 
           let device = device_check();
-    
+
           let counter = 0;
           for (let b of bus_infos) {
             if (b.busNum == selectedEntity.name) {
               console.log(b);
+
               let cart2 = SceneTransforms.wgs84ToWindowCoordinates(
                 cesiumViewer.scene,
                 bus_locations[counter]
               );
-              let busInfo = bus_infos[counter];
-              let sensorInfo = bus_sensor_infos[counter];
 
-              locationInfoData[0].locationName = "";
-              locationInfoData[0].dust = sensorInfo.pm2_5;
-              locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
-              locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
-              locationInfoData[0].temperature = sensorInfo.temp;
-              locationInfoData[0].humid = sensorInfo.humi;
-              if ("PC" == device) {
-                locationInfoData[0].location.x = cart2.x - 20;
-              } else { 
-                locationInfoData[0].location.x = cart2.x - 20;
-              }
+              let cartographic = Cartographic.fromCartesian(bus_locations[counter]);
+
+              let lon = CesiumMath.toDegrees(cartographic.longitude);
+              let lat = CesiumMath.toDegrees(cartographic.latitude);
+
+              let post = "http://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=" + lon +"," + 
+               lat + "&type=both&zipcode=true&simple=true&key=D757F8D1-B108-3924-86E7-2DA8B1A288FF";
+
+              component.$jsonp(post).then(function(response) {
+                if (response.status == 200) {
+                    console.log(response);
+                  }
+
+                  //행정동 가져오기
+                  //0은 구주소, 1은 도로명 주소
+                  let dong = response.response.result[0].structure.level4L;
+
+                  let sensorInfo = bus_sensor_infos[counter];
+
+                  locationInfoData[0].locationName = dong;
+                  locationInfoData[0].dust = sensorInfo.pm2_5;
+                  locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
+                  locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
+                  locationInfoData[0].temperature = sensorInfo.temp;
+                  locationInfoData[0].humid = sensorInfo.humi;
+                  if ("PC" == device) {
+                    locationInfoData[0].location.x = cart2.x - 20;
+                  } else {
+                    locationInfoData[0].location.x = cart2.x - 20;
+                  }
+
+                  locationInfoData[0].location.y = cart2.y - 60;
+              });
+
+
+
+              // let post = "/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=" + lon +"," + 
+              //  lat + "&type=both&zipcode=true&simple=true&key=D757F8D1-B108-3924-86E7-2DA8B1A288FF";
+
+              // axios
+              //   .post("/address", {
+              //     service : "address",
+              //     request : "getAddress",
+              //     version : "2.0",
+              //     crs : "epsg:4326",
+              //     point : lon + "," + lat,
+              //     type : "both",
+              //     zipcode : true,
+              //     simple : true,
+              //     key : "D757F8D1-B108-3924-86E7-2DA8B1A288FF",
+              //   },{headers: { "Content-Type": "application/json" },})
+              // axios
+              //   .post(post)
+              //   .then(function (response) {
+              //     if (response.status == 200) {
+              //       console.log(response);
+              //     }
+
+              //     //let busInfo = bus_infos[counter];
+              //     let sensorInfo = bus_sensor_infos[counter];
+
+              //     locationInfoData[0].locationName = "";
+              //     locationInfoData[0].dust = sensorInfo.pm2_5;
+              //     locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
+              //     locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
+              //     locationInfoData[0].temperature = sensorInfo.temp;
+              //     locationInfoData[0].humid = sensorInfo.humi;
+              //     if ("PC" == device) {
+              //       locationInfoData[0].location.x = cart2.x - 20;
+              //     } else {
+              //       locationInfoData[0].location.x = cart2.x - 20;
+              //     }
+
+              //     locationInfoData[0].location.y = cart2.y - 60;
+              //   });             
               
-              locationInfoData[0].location.y = cart2.y - 60;
               break;
             }
 
