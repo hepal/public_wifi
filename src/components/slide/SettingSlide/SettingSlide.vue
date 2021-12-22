@@ -1,7 +1,7 @@
 <template>
   <Container :isPop="true">
     <!-- <button v-on:click="togglePop" class="close">✕</button> -->
-    <h3>센서 연결 상태</h3>
+    <h3>측정기 연결 상태</h3>
     <SectionRow>
       <CheckContainer v-for="(route, index) in busRouteList" :key="index">
         <input
@@ -374,12 +374,12 @@ export default {
       ],
       routeDataDummyList: {
         header: [
-          "차량번호\n ",
-          "초미세먼지\n(㎍/㎥)",
-          "이산화질소\n(ppm)",
-          "오존\n(ppm)",
-          "온도\n(°C)",
-          "습도\n(%)",
+          "차량번호",
+          "초미세먼지",
+          "이산화질소",
+          "오존",
+          "온도",
+          "습도",
         ],
         data: [
           {
