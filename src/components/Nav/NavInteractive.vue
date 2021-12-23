@@ -2,10 +2,10 @@
   <Container>
     <div class="section left">
       <img :src="img_logo" alt="" />
-      <div>
-        디지털 트윈 폭염<br />
-        대기환경 대응지원 시스템
-      </div>
+      <Title>
+        공공와이파이를 활용한 디지털트윈<br />
+        폭염/대기환경 대응지원 서비스
+      </Title>
     </div>
     <div class="section right">
       <button  v-on:click="isSettingPop = !isSettingPop">
@@ -73,6 +73,12 @@ const DropDownContainer = styled.div`
   overflow: hidden;
 `;
 
+const Title = styled.div`
+  ${props => props.theme.type.size.caption};
+  ${props => props.theme.type.weight.prd.bold};
+  padding-left: 4px;
+`;
+
 const List = styled.div`
   width: 100%;
   height: 32px;
@@ -118,6 +124,7 @@ export default {
     DropDownContainer,
     List,
     Menu,
+    Title
   },
   props: {
     setCurrentScreen: Function,
