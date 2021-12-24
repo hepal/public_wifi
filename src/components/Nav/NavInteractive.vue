@@ -18,7 +18,7 @@
         v-if="isSettingPop"
       >
         <List>
-          관리자명: 김철수
+          {{administartor}}
         </List>
         <Menu v-on:click="isSettingPop = false">
           <button v-on:click="setCurrentScreen('USERMANAGING')">
@@ -60,6 +60,8 @@ import tab_map_on from "../../assets/icon/map/on.svg";
 import tab_map_off from "../../assets/icon/map/off.svg";
 import tab_statisfic_on from "../../assets/icon/statistic/on.svg";
 import tab_statisfic_off from "../../assets/icon/statistic/off.svg";
+
+
 
 const DropDownContainer = styled.div`
   position: absolute;
@@ -125,6 +127,7 @@ export default {
   },
   data() {
     return {
+      administartor : "관리자명: 김철수",
       img_logo,
       ic_profile,
       ic_setting,
@@ -155,7 +158,7 @@ export default {
         },
       ],
     };
-  },
+  },  
   computed: {
     currentRouteName() {
       return this.$route.name;

@@ -18,9 +18,9 @@
       <LocationInfoEntity
         ref="locationInfo"
         v-for="(location, index) in locationInfoDataDummy"
-        :key="index"        
+        :key="index"
         :title="location.title"
-        :locationName ="location.locationName"
+        :locationName="location.locationName"
         :dust="location.dust"
         :no2="location.no2"
         :o3="location.o3"
@@ -121,9 +121,10 @@ import map_bg_dummy from "../../assets/dummy/map_bg_mono.jpg";
 import styled from "vue-styled-components";
 import bus_route from "../../assets/route/BUS_ALL_12_09.json";
 import route_cell from "../../assets/route/cell_route_50.json";
+import bus_num_link_id from "../../assets/route/bus_num_link_id.json";
 import proj4 from "proj4/dist/proj4";
 import HashMap from "hashmap";
-import axios from "axios";
+//import axios from "axios";
 
 //import mssql from 'mssql'
 //const sql = require("msnodesqlv8");
@@ -211,16 +212,22 @@ function _updateMapLayer(viewer, currentMapStyle) {
   let baseLayer = layers.get(0);
 
   if (currentMapStyle == "mono") {
-    if (osm != baseLayer) {
-      layers.remove(baseLayer);
-      let layer = layers.addImageryProvider(osm);
-      layer.saturation = 0.1;
-    }
+    let osm = new OpenStreetMapImageryProvider({
+      url: "https://a.tile.openstreetmap.org/",
+      defaultGamma: 0.5,
+    });
+    layers.remove(baseLayer);
+    let layer = layers.addImageryProvider(osm);
+    layer.saturation = 0.1;
   } else {
-    if (bing != baseLayer) {
-      layers.remove(baseLayer);
-      let layer = layers.addImageryProvider(bing);
-    }
+    let bing = new BingMapsImageryProvider({
+      url: "https://dev.virtualearth.net",
+      key: "AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr",
+      mapStyle: BingMapsStyle.AERIAL,
+    });
+
+    layers.remove(baseLayer);
+    let layer = layers.addImageryProvider(bing);
   }
 }
 
@@ -304,6 +311,10 @@ function createCellRouteMap() {
   }
 }
 
+function getRoute() {
+
+}
+
 //버스 경로의 색상 (오염도)를 업데이트 한다.
 function _updateRouteInfo(viewer, totalSensorList) {
   startTimer();
@@ -354,15 +365,7 @@ function _updateRouteInfo(viewer, totalSensorList) {
                 routeId,
                 tempTotalValueCountMap.get(routeId) + 1
               );
-            }
-
-            // let line = busRouteMap.get(routeId);
-            // let value = parseFloat(line.name); //line entity의 name을 값 저장소로 활용
-
-            // minValue = Math.min(sensor[activeSensorType], minValue);
-            // maxValue = Math.max(sensor[activeSensorType], maxValue);
-
-            //line.name = ((value + sensor[activeSensorType]) * 0.5).toString();
+            }            
           }
         }
       }
@@ -524,6 +527,28 @@ const ButtonMap = styled("button", ButtonProps)`
   }
 `;
 
+var mapBusNumLinkId = new HashMap();
+
+function getBusRoute(busNum) {
+  if(mapBusNumLinkId.has(busNum)) {
+    let linkIdList = mapBusNumLinkId.get(busNum);
+
+    for(let l of linkIdList) {
+      
+    }
+  }
+}
+
+function initBusNumLinkIdMap() {
+  for(let b of bus_num_link_id) {
+    if(!mapBusNumLinkId.has(b.ROUTE_NO)) {
+      mapBusNumLinkId.set(b.ROUTE_NO, new Array());
+    }     
+
+    mapBusNumLinkId.get(b.ROUTE_NO).push(b.LINK_ID);
+  }
+}
+
 function createBusRoute(viewer) {
   let source = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
   let dest = new proj4.Proj("EPSG:4326"); //위경도 좌표계
@@ -589,8 +614,8 @@ function device_check() {
 
 var activeSensorType = "pm2_5";
 var component = null;
-var osm = null;
-var bing = null;
+//var osm = null;
+//var bing = null;
 var locationInfoData = [];
 var locationInfoControl = null;
 ///////////////////////////////////////////
@@ -647,7 +672,7 @@ export default {
       ],
       locationInfoDataDummy: [
         {
-          locationName: "대구광역시 OOO동",          
+          locationName: "대구광역시 OOO동",
           dust: 0.001,
           no2: 0.012,
           o3: 0.01,
@@ -686,6 +711,8 @@ export default {
     component = this;
     console.log("Map mounted.");
 
+    var device = device_check();
+
     // let x = bus_route["features"][0]['geometry']['coordinates'][0][0];
     // console.log(x);
     // let y = bus_route["features"][0]['geometry']['coordinates'][0][1];
@@ -714,36 +741,24 @@ export default {
       infoBox: false,
       timeline: false,
       navigationHelpButton: false,
-      navigationInstructionsInitiallyVisible: false,
+      navigationInstructionsInitiallyVisible: true,
       baseLayerPicker: false,
       homeButton: false,
       sceneModePicker: false,
       animation: false,
       // 세슘 Ion 지형 사용시
-      terrainProvider: createWorldTerrain(),
+      //terrainProvider: createWorldTerrain(),
+      terrainProvider: device == "PC" ? createWorldTerrain() : null,
     });
 
     cesiumViewer = this.viewer;
     this.$viewer = this.viewer;
 
     //건물 사용
-    this.viewer.scene.primitives.add(createOsmBuildings());
-    this.viewer.scene.globe.depthTestAgainstTerrain = true;
-    //this.viewer.scene.primitives.add(Cesium.createOsmBuildings());
-    // this.viewer.scene.canvas.addEventListener(
-    //   "contextmenu",
-    //   (event) => {
-    //     event.preventDefault();
-    //     const mousePosition = new Cartesian2(event.clientX, event.clientY);
-    //     const selectedLocation = this.viewer.scene.pickPosition(mousePosition);
-
-    //     setMarkerInPos(
-    //       Cartographic.fromCartesian(selectedLocation),
-    //       this.viewer
-    //     );
-    //   },
-    //   false
-    // );
+    if ("PC" == device) {
+      this.viewer.scene.primitives.add(createOsmBuildings());
+      this.viewer.scene.globe.depthTestAgainstTerrain = true;
+    }
 
     this.viewer.selectedEntityChanged.addEventListener(function (
       selectedEntity
@@ -752,7 +767,7 @@ export default {
         if (CesiumDefined(selectedEntity.name)) {
           console.log("Selected " + selectedEntity.name);
 
-          let device = device_check();
+          //let device = device_check();
 
           let counter = 0;
           for (let b of bus_infos) {
@@ -764,82 +779,46 @@ export default {
                 bus_locations[counter]
               );
 
-              let cartographic = Cartographic.fromCartesian(bus_locations[counter]);
+              let cartographic = Cartographic.fromCartesian(
+                bus_locations[counter]
+              );
 
               let lon = CesiumMath.toDegrees(cartographic.longitude);
               let lat = CesiumMath.toDegrees(cartographic.latitude);
 
-              let post = "http://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=" + lon +"," + 
-               lat + "&type=both&zipcode=true&simple=true&key=D757F8D1-B108-3924-86E7-2DA8B1A288FF";
+              let post =
+                "http://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=" +
+                lon +
+                "," +
+                lat +
+                "&type=both&zipcode=true&simple=true&key=D757F8D1-B108-3924-86E7-2DA8B1A288FF";
 
-              component.$jsonp(post).then(function(response) {
+              component.$jsonp(post).then(function (response) {
                 if (response.status == 200) {
-                    console.log(response);
-                  }
+                  console.log(response);
+                }
 
-                  //행정동 가져오기
-                  //0은 구주소, 1은 도로명 주소
-                  let dong = response.response.result[0].structure.level4L;
+                //행정동 가져오기
+                //0은 구주소, 1은 도로명 주소
+                let dong = response.response.result[0].structure.level4L;
 
-                  let sensorInfo = bus_sensor_infos[counter];
+                let sensorInfo = bus_sensor_infos[counter];
 
-                  locationInfoData[0].locationName = dong;
-                  locationInfoData[0].dust = sensorInfo.pm2_5;
-                  locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
-                  locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
-                  locationInfoData[0].temperature = sensorInfo.temp;
-                  locationInfoData[0].humid = sensorInfo.humi;
-                  if ("PC" == device) {
-                    locationInfoData[0].location.x = cart2.x - 20;
-                  } else {
-                    locationInfoData[0].location.x = cart2.x - 20;
-                  }
+                locationInfoData[0].locationName = dong;
+                locationInfoData[0].dust = sensorInfo.pm2_5;
+                locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
+                locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
+                locationInfoData[0].temperature = sensorInfo.temp;
+                locationInfoData[0].humid = sensorInfo.humi;
+                if ("PC" == device) {
+                  locationInfoData[0].location.x = cart2.x - 20;
+                } else {
+                  locationInfoData[0].location.x = cart2.x - 20;
+                }
 
-                  locationInfoData[0].location.y = cart2.y - 60;
+                locationInfoData[0].location.y = cart2.y - 60;
               });
 
-
-
-              // let post = "/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=" + lon +"," + 
-              //  lat + "&type=both&zipcode=true&simple=true&key=D757F8D1-B108-3924-86E7-2DA8B1A288FF";
-
-              // axios
-              //   .post("/address", {
-              //     service : "address",
-              //     request : "getAddress",
-              //     version : "2.0",
-              //     crs : "epsg:4326",
-              //     point : lon + "," + lat,
-              //     type : "both",
-              //     zipcode : true,
-              //     simple : true,
-              //     key : "D757F8D1-B108-3924-86E7-2DA8B1A288FF",
-              //   },{headers: { "Content-Type": "application/json" },})
-              // axios
-              //   .post(post)
-              //   .then(function (response) {
-              //     if (response.status == 200) {
-              //       console.log(response);
-              //     }
-
-              //     //let busInfo = bus_infos[counter];
-              //     let sensorInfo = bus_sensor_infos[counter];
-
-              //     locationInfoData[0].locationName = "";
-              //     locationInfoData[0].dust = sensorInfo.pm2_5;
-              //     locationInfoData[0].no2 = roundToTwo(sensorInfo.no2 / 1000.0); // 1/1000
-              //     locationInfoData[0].o3 = roundToTwo(sensorInfo.o3 / 1000.0); // 1/1000
-              //     locationInfoData[0].temperature = sensorInfo.temp;
-              //     locationInfoData[0].humid = sensorInfo.humi;
-              //     if ("PC" == device) {
-              //       locationInfoData[0].location.x = cart2.x - 20;
-              //     } else {
-              //       locationInfoData[0].location.x = cart2.x - 20;
-              //     }
-
-              //     locationInfoData[0].location.y = cart2.y - 60;
-              //   });             
-              
               break;
             }
 
@@ -855,13 +834,7 @@ export default {
       }
     });
 
-    bing = new BingMapsImageryProvider({
-      url: "https://dev.virtualearth.net",
-      key: "AjhqDX7x10Y9EX1gBMws-BRTsMeUPFCQMXeWX_E98t59G2dV8Bj_xagMzsP7IHAr",
-      mapStyle: BingMapsStyle.AERIAL,
-    });
-
-    osm = new OpenStreetMapImageryProvider({
+    let osm = new OpenStreetMapImageryProvider({
       url: "https://a.tile.openstreetmap.org/",
       defaultGamma: 0.5,
     });
@@ -886,7 +859,7 @@ export default {
     createCellRouteMap();
 
     //pc와 mobile의 compass 위치를 다르게 한다.
-    let device = device_check();
+    //let device = device_check();
 
     if ("PC" == device) {
       let compass = document.getElementById("compass");

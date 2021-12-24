@@ -24,13 +24,7 @@ module.exports = {
       '/Sensor' : {
         target: 'http://210.90.145.70:12000',
         changeOrigin: true,        
-      }, 
-      '/req' : {
-        target: 'http://api.vworld.kr',
-        secure: false,
-        changeOrigin: true,        
-        pathRewrite: { '^/req': '' },
-      },    
+      },  
     }    
   },
   configureWebpack: {
