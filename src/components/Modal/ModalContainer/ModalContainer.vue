@@ -30,7 +30,7 @@ const Container = styled("div", ContainerProps)`
       case "big":
         return "686px";
       default:
-        return "286px";
+        return "324px";
     }
   }};
   background-color: #fff;
