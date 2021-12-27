@@ -3,8 +3,8 @@
     <div class="section left">
       <img :src="img_logo" alt="" />
       <div>
-        디지털 트윈 폭염<br />
-        대기환경 대응지원 시스템
+        공공와이파이를 활용한 디지털트윈<br />
+        폭염/대기환경 대응지원 서비스
       </div>
     </div>
     <div class="section right">
