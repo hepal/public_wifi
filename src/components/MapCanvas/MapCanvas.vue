@@ -315,8 +315,10 @@ function getRoute() {
 
 }
 
+
+
 //버스 경로의 색상 (오염도)를 업데이트 한다.
-function _updateRouteInfo(viewer, totalSensorList) {
+async function _updateRouteInfo(viewer, totalSensorList) {
   startTimer();
   let dest = new proj4.Proj("EPSG:5187"); //기존 버스 경로 좌표계
   let source = new proj4.Proj("EPSG:4326"); //위경도 좌표계
@@ -411,6 +413,8 @@ function _updateRouteInfo(viewer, totalSensorList) {
 
     console.log("route color updated");
     endTimer();
+
+    return "route color updated";
   }
 }
 
@@ -533,8 +537,18 @@ function getBusRoute(busNum) {
   if(mapBusNumLinkId.has(busNum)) {
     let linkIdList = mapBusNumLinkId.get(busNum);
 
+    for (const pair of busRouteMap) {
+      pair.value.name = "0";
+      let color = pair.value.polyline.material.color;
+
+
+    }
+
     for(let l of linkIdList) {
-      
+      if(busRouteMap.has(l)) {
+        
+        //let color = Color.fromHsl(hue, 0.8, 0.5, 0.5);
+      }
     }
   }
 }
@@ -693,8 +707,8 @@ export default {
     updateSensors(activeSensorList) {
       _updateSensors(this.viewer, activeSensorList);
     },
-    updateRoute(totalSensorList) {
-      _updateRouteInfo(this.viewer, totalSensorList);
+    async updateRoute(totalSensorList) {
+      let result = await _updateRouteInfo(this.viewer, totalSensorList);
     },
     setActiveSensor(sensorType) {
       activeSensorType = sensorType;
