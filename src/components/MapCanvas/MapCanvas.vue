@@ -25,7 +25,7 @@
         :no2="location.no2"
         :o3="location.o3"
         :temperature="location.temperature"
-        :humid="location.temperature"
+        :humid="location.humid"
         :x="location.location.x"
         :y="location.location.y"
       />
