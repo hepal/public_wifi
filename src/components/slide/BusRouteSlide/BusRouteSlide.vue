@@ -227,7 +227,7 @@ export default {
       ],
       routeDataDummyList: {
         header: [
-          "차량번호\n ",
+          "노선\n(차량번호) ",
           "초미세먼지\n(㎍/㎥)",
           "이산화질소\n(ppm)",
           "오존\n(ppm)",
