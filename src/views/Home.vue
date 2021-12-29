@@ -124,6 +124,8 @@ var sensorAvgValues = {
   humid: 35,
 };
 
+var component = null;
+
 //route 값을 가져온다.
 function requestRouteData(home, sensorType) {
   if (
@@ -141,7 +143,7 @@ function requestData(home, fullData) {
   let jsonBusData = null;
 
   if (fullData) {
-    jsonBusData = {
+    jsonBusData = {      
       requestSensorData: {
         beginYear: date.getFullYear(),
         beginMonth: date.getMonth() + 1,
@@ -168,8 +170,97 @@ function requestData(home, fullData) {
     };
   }
 
+  // let post = "http://210.90.145.70:12000/Sensor";
+
+  // component.$jsonp(post, jsonBusData).then(function (response) {
+  //   if (response.status == 200) {
+  //     sensorMap.clear();
+  //     console.log(response);
+
+  //     let totalSensorList = [];
+
+  //     //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
+  //     for (let i of response.data.sensorDatas) {
+  //       //console.log("%f,%f",i.lat,i.lon);
+  //       if (30 < i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
+  //         sensorMap.set(i.serno, i);
+  //         totalSensorList.push(i);
+  //       }
+  //     }
+
+  //     let tempSensorList = [];
+  //     sensorMap.forEach(function (value, key) {
+  //       console.log("%s,%s,%f,%f", key, value.regdate, value.lat, value.lon);
+  //       tempSensorList.push(value);
+  //     });
+
+  //     sensorList = tempSensorList;
+
+  //     let tsa = {
+  //       dust: 0,
+  //       no2: 0,
+  //       o3: 0,
+  //       temp: 0,
+  //       humid: 0,
+  //     };
+
+  //     let activeSensorList = [];
+  //     for (let sensor of sensorList) {
+  //       let busInfo = getBusInfo(sensor.serno);
+
+  //       tsa.dust += sensor.pm2_5;
+  //       tsa.no2 += sensor.no2;
+  //       tsa.o3 += sensor.o3;
+  //       tsa.temp += sensor.temp;
+  //       tsa.humid += sensor.humi;
+
+  //       if (null != busInfo) {
+  //         let activeSensor = {
+  //           sensorInfo: sensor,
+  //           busInfo: busInfo,
+  //         };
+
+  //         activeSensorList.push(activeSensor);
+
+  //         //console.log("노선:%d 버스:%d 센서ID:%s 먼지:%f 이산화질소:%f 오존:%f 온도:%f 습도:%f 위도:%f 경도:%f",busInfo.routeNum,busInfo.busNum,sensor.serno,sensor.pm2_5,sensor.no2,sensor.o3,sensor.temp,sensor.humi,sensor.lat,sensor.lon);
+  //       } else {
+  //         console.log("%s 센서가 연계된 버스 없음", sensor.serno);
+  //       }
+  //     }
+
+  //     if (sensorList.length > 0) {
+  //       mapCanvas.indicatorListDummy[0].value = roundToTwo(
+  //         tsa.dust / sensorList.length
+  //       );
+  //       mapCanvas.indicatorListDummy[1].value = roundToTwo(
+  //         tsa.no2 / sensorList.length / 1000.0 //이산화질소는 1/1000 으로 줄여야 한다.
+  //       );
+  //       mapCanvas.indicatorListDummy[2].value = roundToTwo(
+  //         tsa.o3 / sensorList.length / 1000.0 //오존은 1/1000 으로 줄여야 한다.
+  //       );
+  //       mapCanvas.indicatorListDummy[3].value = roundToTwo(
+  //         tsa.temp / sensorList.length
+  //       );
+  //       mapCanvas.indicatorListDummy[4].value = roundToTwo(
+  //         tsa.humid / sensorList.length
+  //       );
+  //     }
+
+  //     if (
+  //       null != mapCanvas.$refs.mapCanvas ||
+  //       undefined != mapCanvas.$refs.mapCanvas
+  //     ) {
+  //       mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+
+  //       //mapCanvas.$refs.settingSlide.updateSensorState(activeSensorList);
+
+  //       if (fullData) mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
+  //     }
+  //   }
+  // });
+
   axios
-    .post("/Sensor", JSON.stringify(jsonBusData), {
+    .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonBusData), {
       headers: { "Content-Type": "application/json" },
     })
     .then(function (response) {
@@ -423,6 +514,9 @@ export default {
       requestData(this, false);
       console.log("request bus data");
     }, 10000);
+  },
+  mounted: function () {
+    component = this;
   },
   methods: {
     togglePop() {

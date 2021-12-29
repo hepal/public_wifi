@@ -150,7 +150,7 @@ function requestSensorState() {
   };
 
   axios
-    .post("/Sensor", JSON.stringify(jsonBusData), {
+    .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonBusData), {
       headers: { "Content-Type": "application/json" },
     })
     .then(function (response) {

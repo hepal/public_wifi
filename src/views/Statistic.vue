@@ -543,9 +543,8 @@ export default {
         },
       };
 
-
       axios
-        .post("/Sensor", JSON.stringify(jsonAvgBusData), {
+        .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonAvgBusData), {
           headers: { "Content-Type": "application/json" },
         })
         .then(function (response) {

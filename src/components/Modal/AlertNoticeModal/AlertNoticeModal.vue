@@ -1,51 +1,34 @@
 <template>
-  <ModalContainer
-    :size="'small'"
-    :onClose="onClose"
-  >
-    <Title>
-      초미세먼지 주의보 발령
-    </Title>
+  <ModalContainer :size="'small'" :onClose="onClose">
+    <Title> {{alert_title}} </Title>
     <Content>
-      <p>
-        <span>날짜:</span> 2021-11-12
-      </p>
-      <p>
-        <span>시간:</span>  3:15:21pm
-      </p>
+      <p><span>날짜:</span> {{ alert_day }}</p>
+      <p><span>시간:</span> {{ alert_time }}</p>
     </Content>
     <ActionBar>
-      <Button
-        :onClick="onClose"
-        type="PrimaryOutlined"
-      >
-        확인
-      </Button>
-      <Button
-        :onClick="onNext"
-        type="PrimaryFilled"
-      >
-        상황전파
-      </Button>
+      <Button :onClick="onClose" type="PrimaryOutlined"> 확인 </Button>
+      <Button :onClick="onNext" type="PrimaryFilled"> 상황전파 </Button>
     </ActionBar>
   </ModalContainer>
 </template>
 <script>
 import styled from "vue-styled-components";
-import ModalContainer from '@/components/Modal/ModalContainer/ModalContainer'
-import Button from '@/components/Button/Button';
+import ModalContainer from "@/components/Modal/ModalContainer/ModalContainer";
+import Button from "@/components/Button/Button";
+
+var alertNoticeMordal = null;
 
 const Title = styled.h3`
-  color: ${props => props.theme.color.signal.warn};
+  color: ${(props) => props.theme.color.signal.warn};
   margin: 24px 0 48px 0;
 `;
 
 const Content = styled.div`
-  p{
+  p {
     margin: 0;
   }
-  span{
-    ${props => props.theme.type.weight.prd.bold}
+  span {
+    ${(props) => props.theme.type.weight.prd.bold}
   }
 `;
 
@@ -54,7 +37,7 @@ const ActionBar = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 48px;
-  button{
+  button {
     width: calc(50% - 8px);
   }
 `;
@@ -66,11 +49,29 @@ export default {
     Title,
     Content,
     Button,
-    ActionBar
+    ActionBar,
   },
+  data() {
+    return {
+      alert_title: "초미세먼지 주의보 발령",
+      alert_day: "2021-10-21",
+      alert_time: "13:11:29",
+    };
+  },
+  created() {
+    this.alertNoticeMordal = this;
+  },
+  mounted() {},
   props: {
     onClose: Function,
-    onNext: Function
-  }
-}
+    onNext: Function,
+  },
+  methods: {
+    setAlarmData(a_day,a_time,a_message) {
+      alertNoticeMordal.data.alert_title = a_message;
+      alertNoticeMordal.data.alert_day = a_day;
+      alertNoticeMordal.data.a_time = a_time;
+    },
+  },
+};
 </script>
