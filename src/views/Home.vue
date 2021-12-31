@@ -56,11 +56,12 @@
     </ScreenContainer>
     <!-- 모달 -->
     <Test>
-      <button v-show="false" v-on:click="toggleAlertPop">
+      <button v-show="true" v-on:click="toggleAlertPop">
         상황전파 발생 테스트
       </button>
     </Test>
-    <AlertNoticeModal
+    <AlertNoticeModal 
+      ref="alertNoticeModal"
       v-if="isAlertNoticePop"
       :onClose="toggleAlertPop"
       :onNext="toggleSubmitMsgPop"
@@ -115,6 +116,7 @@ var sensorMap = new HashMap();
 var routeMap = new HashMap();
 var sensorList = [];
 var mapCanvas = null;
+var alertNoticeModalControl = null;
 
 var sensorAvgValues = {
   dust: 23,
@@ -137,7 +139,7 @@ function requestRouteData(home, sensorType) {
 }
 
 //sensor 값을 가져온다.
-function requestData(home, fullData) {
+function requestData(home, fullData) {  
   var date = new Date();
 
   let jsonBusData = null;
@@ -170,94 +172,7 @@ function requestData(home, fullData) {
     };
   }
 
-  // let post = "http://210.90.145.70:12000/Sensor";
-
-  // component.$jsonp(post, jsonBusData).then(function (response) {
-  //   if (response.status == 200) {
-  //     sensorMap.clear();
-  //     console.log(response);
-
-  //     let totalSensorList = [];
-
-  //     //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
-  //     for (let i of response.data.sensorDatas) {
-  //       //console.log("%f,%f",i.lat,i.lon);
-  //       if (30 < i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
-  //         sensorMap.set(i.serno, i);
-  //         totalSensorList.push(i);
-  //       }
-  //     }
-
-  //     let tempSensorList = [];
-  //     sensorMap.forEach(function (value, key) {
-  //       console.log("%s,%s,%f,%f", key, value.regdate, value.lat, value.lon);
-  //       tempSensorList.push(value);
-  //     });
-
-  //     sensorList = tempSensorList;
-
-  //     let tsa = {
-  //       dust: 0,
-  //       no2: 0,
-  //       o3: 0,
-  //       temp: 0,
-  //       humid: 0,
-  //     };
-
-  //     let activeSensorList = [];
-  //     for (let sensor of sensorList) {
-  //       let busInfo = getBusInfo(sensor.serno);
-
-  //       tsa.dust += sensor.pm2_5;
-  //       tsa.no2 += sensor.no2;
-  //       tsa.o3 += sensor.o3;
-  //       tsa.temp += sensor.temp;
-  //       tsa.humid += sensor.humi;
-
-  //       if (null != busInfo) {
-  //         let activeSensor = {
-  //           sensorInfo: sensor,
-  //           busInfo: busInfo,
-  //         };
-
-  //         activeSensorList.push(activeSensor);
-
-  //         //console.log("노선:%d 버스:%d 센서ID:%s 먼지:%f 이산화질소:%f 오존:%f 온도:%f 습도:%f 위도:%f 경도:%f",busInfo.routeNum,busInfo.busNum,sensor.serno,sensor.pm2_5,sensor.no2,sensor.o3,sensor.temp,sensor.humi,sensor.lat,sensor.lon);
-  //       } else {
-  //         console.log("%s 센서가 연계된 버스 없음", sensor.serno);
-  //       }
-  //     }
-
-  //     if (sensorList.length > 0) {
-  //       mapCanvas.indicatorListDummy[0].value = roundToTwo(
-  //         tsa.dust / sensorList.length
-  //       );
-  //       mapCanvas.indicatorListDummy[1].value = roundToTwo(
-  //         tsa.no2 / sensorList.length / 1000.0 //이산화질소는 1/1000 으로 줄여야 한다.
-  //       );
-  //       mapCanvas.indicatorListDummy[2].value = roundToTwo(
-  //         tsa.o3 / sensorList.length / 1000.0 //오존은 1/1000 으로 줄여야 한다.
-  //       );
-  //       mapCanvas.indicatorListDummy[3].value = roundToTwo(
-  //         tsa.temp / sensorList.length
-  //       );
-  //       mapCanvas.indicatorListDummy[4].value = roundToTwo(
-  //         tsa.humid / sensorList.length
-  //       );
-  //     }
-
-  //     if (
-  //       null != mapCanvas.$refs.mapCanvas ||
-  //       undefined != mapCanvas.$refs.mapCanvas
-  //     ) {
-  //       mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
-
-  //       //mapCanvas.$refs.settingSlide.updateSensorState(activeSensorList);
-
-  //       if (fullData) mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
-  //     }
-  //   }
-  // });
+  
 
   axios
     .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonBusData), {
@@ -380,36 +295,36 @@ function getBusInfo(sensorId) {
 }
 
 //선과 점과의 거리를 구한다.
-function pDistance(x, y, x1, y1, x2, y2) {
-  var A = x - x1;
-  var B = y - y1;
-  var C = x2 - x1;
-  var D = y2 - y1;
+// function pDistance(x, y, x1, y1, x2, y2) {
+//   var A = x - x1;
+//   var B = y - y1;
+//   var C = x2 - x1;
+//   var D = y2 - y1;
 
-  var dot = A * C + B * D;
-  var len_sq = C * C + D * D;
-  var param = -1;
-  if (len_sq != 0)
-    //in case of 0 length line
-    param = dot / len_sq;
+//   var dot = A * C + B * D;
+//   var len_sq = C * C + D * D;
+//   var param = -1;
+//   if (len_sq != 0)
+//     //in case of 0 length line
+//     param = dot / len_sq;
 
-  var xx, yy;
+//   var xx, yy;
 
-  if (param < 0) {
-    xx = x1;
-    yy = y1;
-  } else if (param > 1) {
-    xx = x2;
-    yy = y2;
-  } else {
-    xx = x1 + param * C;
-    yy = y1 + param * D;
-  }
+//   if (param < 0) {
+//     xx = x1;
+//     yy = y1;
+//   } else if (param > 1) {
+//     xx = x2;
+//     yy = y2;
+//   } else {
+//     xx = x1 + param * C;
+//     yy = y1 + param * D;
+//   }
 
-  var dx = x - xx;
-  var dy = y - yy;
-  return Math.sqrt(dx * dx + dy * dy);
-}
+//   var dx = x - xx;
+//   var dy = y - yy;
+//   return Math.sqrt(dx * dx + dy * dy);
+// }
 
 import ic_route from "../assets/icon/route_detail/off.svg";
 
@@ -514,15 +429,23 @@ export default {
       requestData(this, false);
       console.log("request bus data");
     }, 10000);
+
+    
   },
-  mounted: function () {
-    component = this;
+  mounted: function() {
+    component = this;    
   },
   methods: {
     togglePop() {
       this.isRoutePop = !this.isRoutePop;
     },
     toggleAlertPop() {
+      
+      if(this.isAlertNoticePop) {
+        //팝업 내용 업데이트
+        this.$refs.alertNoticeModal;
+      }
+
       this.isAlertNoticePop = !this.isAlertNoticePop;
     },
     toggleSubmitMsgPop() {
