@@ -2,7 +2,7 @@
   "name": "public_wifi",
   "version": "0.1.0",
   "private": true,
-  "scripts": {    
+  "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -20,6 +20,7 @@
     "net": "^1.0.2",
     "proj4": "^2.7.5",
     "sass-loader": "10",
+    "sf": "^0.2.0",
     "tedious": "^14.0.0",
     "vue": "^2.6.11",
     "vue-charts": "^0.2.1",

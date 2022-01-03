@@ -61,16 +61,18 @@ export default {
   created() {
     this.alertNoticeMordal = this;
   },
-  mounted() {},
+  mounted() {
+    this.$emit('update',this);
+  },
   props: {
     onClose: Function,
     onNext: Function,
   },
   methods: {
     setAlarmData(a_day,a_time,a_message) {
-      alertNoticeMordal.data.alert_title = a_message;
-      alertNoticeMordal.data.alert_day = a_day;
-      alertNoticeMordal.data.a_time = a_time;
+      this.alertNoticeMordal.alert_title = a_message;
+      this.alertNoticeMordal.alert_day = a_day;
+      this.alertNoticeMordal.alert_time = a_time;
     },
   },
 };

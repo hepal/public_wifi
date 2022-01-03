@@ -56,13 +56,14 @@
     </ScreenContainer>
     <!-- 모달 -->
     <Test>
-      <button v-show="true" v-on:click="toggleAlertPop">
+      <button v-show="false" v-on:click="showAlertPop(true)">
         상황전파 발생 테스트
       </button>
     </Test>
-    <AlertNoticeModal 
+    <AlertNoticeModal
       ref="alertNoticeModal"
       v-if="isAlertNoticePop"
+      v-on:update="updateAlertNotice"
       :onClose="toggleAlertPop"
       :onNext="toggleSubmitMsgPop"
     />
@@ -74,6 +75,7 @@ window.CESIUM_BASE_URL = "../../cesium";
 
 import axios from "axios";
 import HashMap from "hashmap";
+import sf from "sf";
 
 // @ is an alias to /src
 import styled from "vue-styled-components";
@@ -116,7 +118,9 @@ var sensorMap = new HashMap();
 var routeMap = new HashMap();
 var sensorList = [];
 var mapCanvas = null;
-var alertNoticeModalControl = null;
+var alertList = [];
+
+var alertMap = new HashMap();
 
 var sensorAvgValues = {
   dust: 23,
@@ -138,14 +142,46 @@ function requestRouteData(home, sensorType) {
   }
 }
 
+function requestAlarmtDataList(home, fullData) {
+  let jsonAlertData = null;
+
+  jsonAlertData = {
+    requestSensorAlarm: {
+      activeOnly: fullData,
+    },
+  };
+
+  axios
+    .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonAlertData), {
+      headers: { "Content-Type": "application/json" },
+    })
+    .then(function (response) {
+      if (response.status == 200) {        
+        //alertMap.clear();
+
+        for (let i of response.data.sensorAlarmList) {
+          if (!alertMap.has(i.id)) {
+            //신규 알람이 있으면 추가한다.
+            alertMap.set(i.id, i);
+            alertList.push(i);            
+          }
+        }
+      }
+
+      if(alertList.length > 0) {
+        mapCanvas.showAlertPop(true);
+      }
+    });
+}
+
 //sensor 값을 가져온다.
-function requestData(home, fullData) {  
+function requestSensorDataList(home, fullData) {
   var date = new Date();
 
   let jsonBusData = null;
 
   if (fullData) {
-    jsonBusData = {      
+    jsonBusData = {
       requestSensorData: {
         beginYear: date.getFullYear(),
         beginMonth: date.getMonth() + 1,
@@ -171,8 +207,6 @@ function requestData(home, fullData) {
       },
     };
   }
-
-  
 
   axios
     .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonBusData), {
@@ -294,38 +328,6 @@ function getBusInfo(sensorId) {
   return null;
 }
 
-//선과 점과의 거리를 구한다.
-// function pDistance(x, y, x1, y1, x2, y2) {
-//   var A = x - x1;
-//   var B = y - y1;
-//   var C = x2 - x1;
-//   var D = y2 - y1;
-
-//   var dot = A * C + B * D;
-//   var len_sq = C * C + D * D;
-//   var param = -1;
-//   if (len_sq != 0)
-//     //in case of 0 length line
-//     param = dot / len_sq;
-
-//   var xx, yy;
-
-//   if (param < 0) {
-//     xx = x1;
-//     yy = y1;
-//   } else if (param > 1) {
-//     xx = x2;
-//     yy = y2;
-//   } else {
-//     xx = x1 + param * C;
-//     yy = y1 + param * D;
-//   }
-
-//   var dx = x - xx;
-//   var dy = y - yy;
-//   return Math.sqrt(dx * dx + dy * dy);
-// }
-
 import ic_route from "../assets/icon/route_detail/off.svg";
 
 const ScreenContainer = styled.div`
@@ -426,26 +428,119 @@ export default {
 
     //10초에 한번씩 호출 (버스 및 현재 데이터 업데이트)
     setInterval(function () {
-      requestData(this, false);
+      requestSensorDataList(this, false);
       console.log("request bus data");
-    }, 10000);
+    }, 10000); //10초에 1번
 
-    
+    setInterval(function () {
+      requestAlarmtDataList(this, true);
+      console.log("request alarm data");
+    }, 5000); //5초에 1번
   },
-  mounted: function() {
-    component = this;    
+  mounted: function () {
+    component = this;
   },
   methods: {
+    updateAlertNotice(alertComp) {
+      //console.log(alertComp);
+
+      if (alertList.length > 0) {
+        let a = alertList.pop();
+
+        let ymd = a.regdate.split(" ")[0].split("-");
+
+        let year = parseInt(ymd[0]);
+        let month = parseInt(ymd[1]);
+        let day = parseInt(ymd[2]);
+
+        let dayString = sf("{0}년 {1}월 {2}일", year, month, day);
+
+        let hms = a.regdate.split(" ")[1].split(":");
+
+        let hour = parseInt(hms[0]);
+        let min = parseInt(hms[1]);
+        let sec = parseInt(hms[2]);
+
+        let hourString = sf("{0}시 {1}분 {2}초", hour, min, sec);
+
+        let message = "";
+
+        let sensorType = "";
+
+        let alarmImage = null;
+
+        switch (a.stype) {
+          case "o3":
+            sensorType = "오존";
+            alarmImage = ic_o3;
+            break;
+          case "no2":
+            sensorType = "이산화질소";
+            alarmImage = ic_no2;
+            break;
+          case "humid":
+            sensorType = "습도";
+            alarmImage = ic_humid;
+            break;
+          case "pm2_5":
+            sensorType = "초미세먼지";
+            alarmImage = ic_dust;
+            break;
+          case "cold":
+            sensorType = "한파";
+            alarmImage = ic_temp;
+            break;
+          case "hot":
+            sensorType = "폭염";
+            alarmImage = ic_temp;
+            break;
+        }
+
+        let alertType = "";
+
+        if (a.atype == "watch") {
+          //주의보
+          alertType = "주의보";          
+        } else if (a.atype == "alert") {
+          //경보
+          alertType = "경보";          
+        }
+
+        message = sf("{0} {1}가 발령되었습니다.", sensorType,alertType);
+
+        //알람창에 내용 업데이트
+        alertComp.setAlarmData(dayString, hourString,message);
+
+        //오른쪽 경보 history 업데이트
+        let alarmListData = {
+          id: a.stype,
+          title: sf("{0} {1} 발령",sensorType,alertType),
+          type: sensorType,
+          img: alarmImage,
+          level: alertType,
+          date: dayString + " " + hourString,
+        };
+
+        //       alarmListDummy: [
+        // {
+        //   id: "dust",
+        //   title: "초미세먼지 주의보 발령",
+        //   type: "초미세먼지",
+        //   img: ic_dust,
+        //   level: "주의보",
+        //   date: "20221-11-12  |  3:15:21pm",
+        // },
+
+        mapCanvas.alarmListDummy.push(alarmListData);
+      }
+    },
     togglePop() {
       this.isRoutePop = !this.isRoutePop;
     },
+    showAlertPop(show) {
+      this.isAlertNoticePop = show;
+    },
     toggleAlertPop() {
-      
-      if(this.isAlertNoticePop) {
-        //팝업 내용 업데이트
-        this.$refs.alertNoticeModal;
-      }
-
       this.isAlertNoticePop = !this.isAlertNoticePop;
     },
     toggleSubmitMsgPop() {
@@ -453,7 +548,7 @@ export default {
       this.isSubmitMsgPop = !this.isSubmitMsgPop;
     },
     getSensorData() {
-      requestData(this);
+      requestSensorDataList(this);
     },
     getRouteData(sensorType) {},
     setCurrentScreen(screenName) {
@@ -481,7 +576,7 @@ export default {
       }
 
       requestRouteData(this, jsonCode);
-      requestData(this, true);
+      requestSensorDataList(this, true);
     },
   },
   data() {
