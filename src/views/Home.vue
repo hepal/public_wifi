@@ -36,6 +36,9 @@
         :level="alarm.level"
         :date="alarm.date"
         :img="alarm.img"
+        :onDelete="() => {
+          deleteAlarm(index);
+        }"
       />
     </AlarmListContainer>
     <!-- 스크린 -->
@@ -194,6 +197,9 @@ export default {
     },
     setCurretIndicator(code) {
       this.currentIndictor = code;
+    },
+    deleteAlarm(index) {
+      this.alarmListDummy = this.alarmListDummy.filter((_, i) => i !==index); 
     }
   },
   data() {

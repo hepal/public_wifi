@@ -8,7 +8,9 @@
       <p><span>{{type}}</span>{{`${level} 발령`}}</p>
       <p>{{date}}</p>
     </div>
-    <button class="close">
+    <button
+    v-on:click="onDelete"
+    class="close">
       ✕
     </button>
   </Container>
@@ -29,6 +31,7 @@ export default {
     level: String,
     date: String,
     img: String,
+    onDelete: Function
   },
   data(){
     return {
