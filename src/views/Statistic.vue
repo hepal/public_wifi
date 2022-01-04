@@ -104,6 +104,7 @@ import SensorTableText from "@/components/table/SensorTableText/SensorTableText"
 import { D3LineChart } from "vue-d3-charts";
 
 import axios from "axios";
+import sf from "sf";
 //import jsonQurty from "json-query";
 
 import Datepicker from "vuejs-datepicker";
@@ -218,7 +219,8 @@ const SectionTiny = styled.div`
     background-color: #ffffff;
   }
   .cell:hover {
-    border: solid 2px ${(props) => props.theme.color.brand.primary700} !important;
+    border: solid 2px ${(props) =>
+      props.theme.color.brand.primary700} !important;
   }
   input {
     width: 100%;
@@ -347,13 +349,13 @@ export default {
           "발행시간",
         ],
         data: [
-          // {
-          //   date: "21.10.1 14:20:11",
-          //   title: "초미세먼지",
-          //   statusLevel: "좋음",
-          //   alertLevel: "주의보",
-          //   time: "10:00:10",
-          // },
+          {
+            date: "21.10.1 14:20:11",
+            title: "초미세먼지",
+            statusLevel: "좋음",
+            alertLevel: "주의보",
+            time: "10:00:10",
+          },
           // {
           //   date: "21.10.1 14:20:11",
           //   title: "초미세먼지",
@@ -493,18 +495,116 @@ export default {
       ],
     };
   },
-  created: function () {
-      avgChart = this;
-    },
-  methods: {
-    dateSelected(e) {
+  mounted: function () {
+    if (null == avgChart || undefined == avgChart) {
+      return;
+    }
 
-    },
+    let jsonAlertData = null;
+
+    jsonAlertData = {
+      requestSensorAlarm: {
+        activeOnly: false,
+      },
+    };
+
+    axios
+      .post(
+        "http://210.90.145.70:12000/Sensor",
+        JSON.stringify(jsonAlertData),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+      .then(function (response) {
+        if (response.status == 200) {
+          //alertMap.clear();
+
+          avgChart.sensorDataDummy.data = [];
+          for (let a of response.data.sensorAlarmList) {
+            //    {
+            //   date: "21.10.1 14:20:11",
+            //   title: "초미세먼지",
+            //   statusLevel: "좋음",
+            //   alertLevel: "주의보",
+            //   time: "10:00:10",
+            // },
+
+            let sensorType = "";
+
+            switch (a.stype) {
+              case "o3":
+                sensorType = "오존";
+                break;
+              case "no2":
+                sensorType = "이산화질소";
+                break;
+              case "humid":
+                sensorType = "습도";
+                break;
+              case "pm2_5":
+                sensorType = "초미세먼지";
+                break;
+              case "cold":
+                sensorType = "한파";
+                break;
+              case "hot":
+                sensorType = "폭염";
+                break;
+            }
+
+            let alertType = "";
+
+            if (a.atype == "watch") {
+              //주의보
+              alertType = "주의보";
+            } else if (a.atype == "alert") {
+              //경보
+              alertType = "경보";
+            }
+
+            let ymd = a.regdate.split(" ")[0].split("-");
+
+            let year = parseInt(ymd[0]);
+            let month = parseInt(ymd[1]);
+            let day = parseInt(ymd[2]);
+
+            let dayString = sf("{0}년 {1}월 {2}일", year, month, day);
+
+            let hms = a.regdate.split(" ")[1].split(":");
+
+            let hour = parseInt(hms[0]);
+            let min = parseInt(hms[1]);
+            let sec = parseInt(hms[2]);
+
+            let hourString = sf("{0}시 {1}분 {2}초", hour, min, sec);
+
+            let d = {
+              date: dayString,
+              title: sensorType,
+              statusLevel: "",
+              alertLevel: alertType,
+              time: hourString,
+            };
+
+            avgChart.sensorDataDummy.data.push(d);
+          }
+        }        
+      });
+  },
+  created: function () {
+    avgChart = this;
+  },
+  methods: {
+    dateSelected(e) {},
     toggleDeletePop() {
       this.is_delete_pop = !this.is_delete_pop;
     },
     onClickQuery() {
-      if(this.selectedSensor == undefined || this.selectedDataType == undefined) {
+      if (
+        this.selectedSensor == undefined ||
+        this.selectedDataType == undefined
+      ) {
         return;
       }
 
@@ -515,10 +615,9 @@ export default {
 
       //let date = new Date();
 
-
       let avgDate = "day";
 
-      switch(this.selectedDataType) {
+      switch (this.selectedDataType) {
         case "일평균":
           avgDate = "day";
           break;
@@ -544,9 +643,13 @@ export default {
       };
 
       axios
-        .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonAvgBusData), {
-          headers: { "Content-Type": "application/json" },
-        })
+        .post(
+          "http://210.90.145.70:12000/Sensor",
+          JSON.stringify(jsonAvgBusData),
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        )
         .then(function (response) {
           if (response.status == 200) {
             console.log(response);
@@ -559,9 +662,11 @@ export default {
             for (let i of response.data.sensorAvgDatas) {
               let value = i[sensorType];
 
-              if(sensorType == 'no2') { //이산화 질소는 1/1000
+              if (sensorType == "no2") {
+                //이산화 질소는 1/1000
                 value = value / 1000;
-              } else if(sensorType == 'o3') { //오존도 1/1000
+              } else if (sensorType == "o3") {
+                //오존도 1/1000
                 value = value / 1000;
               }
 
@@ -569,11 +674,11 @@ export default {
                 value: value,
                 type: sensorType,
                 date: i.date,
-              };              
+              };
 
               let sensorAvgDataForTable = {
                 date: i.date,
-                title: sensorType,                
+                title: sensorType,
                 statusLevel: "좋음",
                 alertLevel: "주의보",
                 time: date.toString(),
@@ -583,17 +688,18 @@ export default {
               sensorAvgDataForTableList.push(sensorAvgDataForTable);
             }
 
-            avgChart.chart_config.axis.xTicks = sensorAvgDataForChartList.length;
+            avgChart.chart_config.axis.xTicks =
+              sensorAvgDataForChartList.length;
             avgChart.sensorGraphDummyData = sensorAvgDataForChartList;
-          //   data: [
-          // {
-          //   date: "21.10.1 14:20:11",
-          //   title: "초미세먼지",
-          //   statusLevel: "좋음",
-          //   alertLevel: "주의보",
-          //   time: "10:00:10",
-          // },
-          //  avgChart.sensorDataDummy.data =sensorAvgDataForTableList;
+            //   data: [
+            // {
+            //   date: "21.10.1 14:20:11",
+            //   title: "초미세먼지",
+            //   statusLevel: "좋음",
+            //   alertLevel: "주의보",
+            //   time: "10:00:10",
+            // },
+            //  avgChart.sensorDataDummy.data =sensorAvgDataForTableList;
           }
         });
     },
