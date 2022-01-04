@@ -39,6 +39,11 @@
         :level="alarm.level"
         :date="alarm.date"
         :img="alarm.img"
+        :onDelete="
+          () => {
+            deleteAlarm(index);
+          }
+        "
       />
     </AlarmListContainer>
     <!-- 스크린 -->
@@ -156,22 +161,30 @@ function requestAlarmtDataList(home, fullData) {
       headers: { "Content-Type": "application/json" },
     })
     .then(function (response) {
-      if (response.status == 200) {        
+      if (response.status == 200) {
         //alertMap.clear();
 
         for (let i of response.data.sensorAlarmList) {
           if (!alertMap.has(i.id)) {
             //신규 알람이 있으면 추가한다.
             alertMap.set(i.id, i);
-            alertList.push(i);            
+            alertList.push(i);
           }
         }
       }
 
-      if(alertList.length > 0) {
+      if (alertList.length > 0) {
         mapCanvas.showAlertPop(true);
       }
     });
+}
+
+function compareStrings(a, b) {
+  // Assuming you want case-insensitive comparison
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+
+  return (a < b) ? -1 : (a > b) ? 1 : 0;
 }
 
 //sensor 값을 가져온다.
@@ -208,6 +221,8 @@ function requestSensorDataList(home, fullData) {
     };
   }
 
+  console.log(jsonBusData);
+
   axios
     .post("http://210.90.145.70:12000/Sensor", JSON.stringify(jsonBusData), {
       headers: { "Content-Type": "application/json" },
@@ -220,6 +235,10 @@ function requestSensorDataList(home, fullData) {
         let totalSensorList = [];
 
         //response.data.sensorDatas.reverse(); //최신 날짜부터 정렬을 위해 뒤집는다.
+        response.data.sensorDatas.sort(function(a,b) {
+          return compareStrings(a.regdate, b.regdate);
+        });
+
         for (let i of response.data.sensorDatas) {
           //console.log("%f,%f",i.lat,i.lon);
           if (30 < i.lat && i.lat < 40 && 120 < i.lon && i.lon < 130) {
@@ -268,7 +287,7 @@ function requestSensorDataList(home, fullData) {
           }
         }
 
-        if (sensorList.length > 0) {
+        if (sensorList.length > 0 && fullData == false) {
           mapCanvas.indicatorListDummy[0].value = roundToTwo(
             tsa.dust / sensorList.length
           );
@@ -298,11 +317,15 @@ function requestSensorDataList(home, fullData) {
           null != mapCanvas.$refs.mapCanvas ||
           undefined != mapCanvas.$refs.mapCanvas
         ) {
-          mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+          if (!fullData) {
+            mapCanvas.$refs.mapCanvas.updateSensors(activeSensorList);
+          }
 
           //mapCanvas.$refs.settingSlide.updateSensorState(activeSensorList);
 
-          if (fullData) mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
+          if (fullData) {
+            mapCanvas.$refs.mapCanvas.updateRoute(totalSensorList);
+          }
         }
       }
     });
@@ -500,21 +523,21 @@ export default {
 
         if (a.atype == "watch") {
           //주의보
-          alertType = "주의보";          
+          alertType = "주의보";
         } else if (a.atype == "alert") {
           //경보
-          alertType = "경보";          
+          alertType = "경보";
         }
 
-        message = sf("{0} {1}가 발령되었습니다.", sensorType,alertType);
+        message = sf("{0} {1}가 발령되었습니다.", sensorType, alertType);
 
         //알람창에 내용 업데이트
-        alertComp.setAlarmData(dayString, hourString,message);
+        alertComp.setAlarmData(dayString, hourString, message);
 
         //오른쪽 경보 history 업데이트
         let alarmListData = {
           id: a.stype,
-          title: sf("{0} {1} 발령",sensorType,alertType),
+          title: sf("{0} {1} 발령", sensorType, alertType),
           type: sensorType,
           img: alarmImage,
           level: alertType,
@@ -556,7 +579,6 @@ export default {
     },
     setCurretIndicator(code) {
       this.currentIndictor = code;
-
       //code를 json 호술시 사용하는 것으로 변경
 
       let jsonCode = "";
@@ -577,6 +599,9 @@ export default {
 
       requestRouteData(this, jsonCode);
       requestSensorDataList(this, true);
+    },
+    deleteAlarm(index) {
+      this.alarmListDummy = this.alarmListDummy.filter((_, i) => i !== index);
     },
   },
   data() {
