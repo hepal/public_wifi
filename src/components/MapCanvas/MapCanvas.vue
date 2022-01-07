@@ -350,10 +350,10 @@ async function _updateRouteInfo(viewer, totalSensorList) {
       let cellId = stepY * cellSize + stepX;
 
       if (cellRouteMap.has(cellId)) {
-        for (let routeId of cellRouteMap.get(cellId)) {
+        for (let routeId of cellRouteMap.get(cellId)) { //cellID를 가지고 route ID list를 가져온다.
           //route number
           if (busRouteMap.has(routeId)) {
-            let value = sensor[activeSensorType];
+            let value = sensor[activeSensorType]; //현재 sensorType 값을 가져온다.
 
             if (!tempTotalValueMap.has(routeId)) {
               tempTotalValueMap.set(routeId, value);
@@ -372,6 +372,8 @@ async function _updateRouteInfo(viewer, totalSensorList) {
         }
       }
     }
+
+    currentRouteColorMap.clear();
     //update line color
     for (const pair of busRouteMap) {
       if (tempTotalValueMap.has(pair.key)) {
@@ -407,6 +409,7 @@ async function _updateRouteInfo(viewer, totalSensorList) {
 
         let color = Color.fromHsl(hue, 0.8, 0.5, 0.5);
 
+        currentRouteColorMap.set(pair.key,color);
         pair.value.polyline.material = color;
       }
     }
@@ -532,23 +535,21 @@ const ButtonMap = styled("button", ButtonProps)`
 `;
 
 var mapBusNumLinkId = new HashMap();
+var currentRouteColorMap = new HashMap();
 
-function getBusRoute(busNum) {
+function changeRouteColorExceptBusRoute(busNum,color) {
   if(mapBusNumLinkId.has(busNum)) {
-    let linkIdList = mapBusNumLinkId.get(busNum);
+    let linkIdList = mapBusNumLinkId.get(busNum);    
 
     for (const pair of busRouteMap) {
-      pair.value.name = "0";
-      let color = pair.value.polyline.material.color;
-
-
+      pair.value.polyline.material.color = color;
     }
 
     for(let l of linkIdList) {
-      if(busRouteMap.has(l)) {
-        
-        //let color = Color.fromHsl(hue, 0.8, 0.5, 0.5);
-      }
+      let lst = l.toString();
+      if(currentRouteColorMap.has(lst) && busRouteMap.has(lst)) {    
+        busRouteMap.get(lst).polyline.material.color = currentRouteColorMap.get(lst);
+      } 
     }
   }
 }
@@ -805,7 +806,7 @@ export default {
                 lon +
                 "," +
                 lat +
-                "&type=both&zipcode=true&simple=true&key=D757F8D1-B108-3924-86E7-2DA8B1A288FF";
+                "&type=both&zipcode=true&simple=true&key=D757F8D1-B108-3924-86E7-2DA8B1A288FF"; //만료일 2022-03-09  
 
               component.$jsonp(post).then(function (response) {
                 if (response.status == 200) {
@@ -833,6 +834,9 @@ export default {
                 locationInfoData[0].location.y = cart2.y - 60;
               });
 
+              //선택된 버스의 노선만 표시
+              let color = Color.fromRgba(0x80808080);
+              changeRouteColorExceptBusRoute(b.routeNum,color);
               break;
             }
 
@@ -869,6 +873,7 @@ export default {
     compass.scene = this.viewer.scene;
     compass.clock = this.viewer.clock;
 
+    initBusNumLinkIdMap();
     createBusRoute(this.viewer);
     createCellRouteMap();
 

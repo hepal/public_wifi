@@ -170,7 +170,7 @@ const Menu = styled.div`
 	align-items: center !important;
 	${(props) => props.theme.type.size.body2}
 	border-bottom: solid 0.5px ${(props) => props.theme.color.ui.low};
-	cursor: pointer;
+	cursor: pointer
 	a {
 		color: ${(props) =>
 			props.isSelected
