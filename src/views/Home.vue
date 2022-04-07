@@ -59,6 +59,9 @@
     <ScreenContainer v-if="currentScreen === 'USERMANAGING'">
       <ManageUser />
     </ScreenContainer>
+    <ScreenContainer v-if="currentScreen === 'LOGIN'">
+      <Login />
+    </ScreenContainer>
     <!-- 모달 -->
     <Test>
       <button v-show="false" v-on:click="showAlertPop(true)">
@@ -89,6 +92,7 @@ import MapCanvas from "../components/MapCanvas/MapCanvas";
 import Statistic from "@/views/Statistic";
 import Setting from "@/views/Setting";
 import ManageUser from "@/views/ManageUser";
+import Login from "@/views/Sign";
 import CardIndicator from "../components/Card/CardIndicator/CardIndicator";
 import WarnAlarmList from "../components/AlarmList/WarnAlarmList/WarnAlarmList";
 import BusRouteSlide from "../components/slide/BusRouteSlide/BusRouteSlide";
@@ -434,6 +438,7 @@ export default {
     Statistic,
     Setting,
     ManageUser,
+    Login,
     IndicatorContainer,
     ScreenContainer,
     CardIndicator,

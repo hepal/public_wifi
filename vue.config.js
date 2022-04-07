@@ -16,7 +16,7 @@ module.exports = {
   ],
   devServer: {
     disableHostCheck: true,
-    host: '192.168.0.5',          //local ip
+    host: '192.168.0.57',          //local ip
         port: 8080,        
         historyApiFallback: true,
         inline: true,

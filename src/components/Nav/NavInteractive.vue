@@ -94,6 +94,11 @@
 			<DropDownContainer v-if="isSettingPop">
 				<List> 관리자명: 김철수 </List>
 				<Menu v-on:click="isSettingPop = false">
+					<button v-on:click="setCurrentScreen('LOGIN')">
+						로그인
+					</button>
+				</Menu>
+				<Menu v-on:click="isSettingPop = false">
 					<button v-on:click="setCurrentScreen('USERMANAGING')">
 						사용자 관리
 					</button>
