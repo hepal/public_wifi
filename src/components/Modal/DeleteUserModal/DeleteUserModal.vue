@@ -4,7 +4,7 @@
       선택하신 사용자를 삭제하시겠습니까? <br/> 삭제 시 복구가 불가능합니다.
     </Title>
     <ActionBar>
-      <Button :onClick="onClose" type="RedOutlined"> 사용자 삭제 </Button>
+      <Button :onClick="onOkClicked" type="RedOutlined"> 사용자 삭제 </Button>
       <Button :onClick="onClose" type="GrayOutlined"> 취소 </Button>
     </ActionBar>
   </ModalContainer>
@@ -40,6 +40,7 @@ export default {
   props: {
     onClick: Function,
     onClose: Function,
+    onOkClicked: Function,
   },
 };
 </script>

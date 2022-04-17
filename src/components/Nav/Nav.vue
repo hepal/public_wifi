@@ -20,16 +20,18 @@
         v-if="isSettingPop"
       >
         <List>
-          관리자명: 김철수
+          관리자명: {{adminName}}
         </List>
         <Menu v-on:click="isSettingPop = false">
           <router-link to="/manageuser">
           사용자 관리
           </router-link>
         </Menu>
+        <!--
         <Menu>
           비밀번호 변경
         </Menu>
+        -->
       </DropDownContainer>
 
     </div>
@@ -112,6 +114,13 @@ export default {
     List,
     Menu,
   },
+   created: function () {    
+    var sessionOptions = {
+      persist: true
+    }
+
+    Vue.use(VueSession, sessionOptions);
+  },
   data() {
     return {
       img_logo,
@@ -149,7 +158,18 @@ export default {
     currentRouteName() {
       return this.$route.name;
     },
-  },
+    adminName : function() {
+      let name = localStorage.getItem('user_name');
+
+      console.log(name);
+
+      if(name == null || name == undefined){
+        return "";
+      }        
+
+      return name;
+    }
+  },  
   methods: {
     isRoute(name) {
       return this.$route.name === name;

@@ -92,7 +92,7 @@
 				<img :src="ic_setting" alt="" />
 			</button>
 			<DropDownContainer v-if="isSettingPop">
-				<List> 관리자명: 김철수 </List>
+				<List> 사용자명: {{adminName}} </List>
 				<Menu v-on:click="isSettingPop = false">
 					<button v-on:click="setCurrentScreen('LOGIN')">
 						로그인
@@ -103,7 +103,9 @@
 						사용자 관리
 					</button>
 				</Menu>
+				<!--
 				<Menu> 비밀번호 변경 </Menu>
+				-->
 			</DropDownContainer>
 		</div>
 		<SideBar>
@@ -250,6 +252,17 @@ export default {
 		currentRouteName() {
 			return this.$route.name;
 		},
+		adminName : function() {
+		let name = localStorage.getItem('user_name');
+
+		console.log(name);
+
+		if(name == null || name == undefined){
+			return "";
+		}        
+
+		return name;
+		}
 	},
 	methods: {
 		isRoute(name) {

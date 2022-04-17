@@ -9,7 +9,9 @@
       <td>
         <input
           type="checkbox"
-          :id="item.name"
+          :ref ="item.id"
+          :id="item.id"
+          :name="item.id"
           :value="item.isCheck"
         />
         <label :for="item.name">

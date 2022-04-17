@@ -50,7 +50,7 @@
           <input type="checkbox" id="id_remember" v-model="isRememberID" />
           <label for="id_remember"> 아이디를 기억합니다. </label>
         </Condition>
-        <Button :onClick="() => {}" type="PrimaryOutlined"> 로그인 </Button>
+        <Button :onClick="() => {login()}" type="PrimaryOutlined"> 로그인 </Button>
       </Form>
       <Form v-if="currentTab === 2">
         <TextField>
@@ -94,7 +94,7 @@
           </label>
         </Condition>
 
-        <Button type="PrimaryOutlined" :onClick="() => {}"> 회원가입 </Button>
+        <Button type="button" :onClick="() =>{ createUser() }"> 회원가입 </Button>
       </Form>
     </Content>
   </Container>
@@ -104,6 +104,12 @@ import styled from "vue-styled-components";
 import ic_logo from "../assets/img/logo.svg";
 import Tab from "../components/Tab/Tab";
 import Button from "@/components/Button/Button";
+import axios from 'axios';
+import HashMap from "hashmap";
+
+var userMap = new HashMap();
+var avgChart = null;
+
 
 const Container = styled.div`
   width: calc(100% - 140px - 48px);
@@ -187,9 +193,129 @@ export default {
     Error,
     Condition,
   },
+  created: function () {
+    avgChart = this;
+    
+  },
+  mounted: function() {
+    if (null == avgChart || undefined == avgChart) {
+      return;
+    }
+
+    avgChart.requestUserList();
+  },  
   methods: {
+    requestUserList() {
+      let userData = {
+        requestManagerList: true
+      };
+
+      axios
+        .post("http://210.90.145.70:12000/Account", JSON.stringify(userData), {
+          headers: { "Content-Type": "application/json" },
+        })
+        .then(function (response) {
+          if (response.status == 200) {            
+            userMap.clear();
+            console.log(response);
+
+            for (let i of response.data.managerList) {
+              userMap.set(i.id,i);
+
+              let d = {                
+                name: i.name,
+                id: i.id,
+                role: i.type,
+                etc: i.note,              
+              };
+            
+              console.log(d);              
+            }            
+          }
+        });       
+    },
     setTabIndex(num) {
       this.currentTab = num;
+    },
+    login() {
+      if(this.signinData.id == null || this.signinData.id.length == 0) {
+        this.signinData.isIdError = true;
+      }
+
+      if(this.signinData.pw == null || this.signinData.pw.length == 0) {
+        this.signinData.isPwError = true;
+      }
+
+      if(userMap.has(this.signinData.id)) {
+        let user = userMap.get(this.signinData.id);
+
+        if(user.pass == this.signinData.pw) {
+          // this.$session.set('user_name', user.name);
+          // this.$session.set('user_id', user.id);
+          // this.$session.set('user_role', user.type);
+          localStorage.setItem('user_name', user.name);
+          localStorage.setItem('user_id', user.ide);
+          localStorage.setItem('user_role', user.type);
+        }
+        else {
+          alert("비밀번호가 일치하지 않습니다.");
+        }
+      }
+    },
+    createUser() {
+      //alert(this.signupData.id + ":" + this.signupData.name + ":" + this.signupData.pw);
+
+      if(this.signupData.id == null || this.signupData.id.length == 0) {
+        this.signupData.isIdError = true;
+        return;
+      }
+        
+
+      if(this.signupData.name == null || this.signupData.name.length == 0) {
+        this.signupData.isNameError = true;
+        return;
+      }        
+      
+      if(this.signupData.pw == null || this.signupData.pw.length == 0) {
+        this.signupData.isPwError = true;
+        return;
+      }
+
+      if(this.signupData.pwConfirm == null || this.signupData.pwConfirm.length == 0) {
+        this.signupData.isPwConfirmError = true;
+        return;
+      }
+
+      if(this.signupData.pwConfirm != this.signupData.pw) {
+        this.signupData.isPwConfirmError = true;
+        return;
+      } 
+
+      if(this.isAgreePolicy == false) {
+        alert("이용 약관에 동의해주세요.");
+        return;
+      }
+      
+
+      let userData = {
+        createManager : {
+          id : this.signupData.id,
+          name : this.signupData.name,
+          type : "user",
+          note : "웹가입",
+          pass : this.signupData.pw,
+        }        
+      };
+
+      axios
+        .post("http://210.90.145.70:12000/Account", JSON.stringify(userData), {
+          headers: { "Content-Type": "application/json" },
+        })
+        .then(function (response) {
+          if (response.status == 200) {            
+            alert(response);            
+          }
+        });     
     },
   },
   data() {
@@ -199,7 +325,7 @@ export default {
       signinData: {
         id: "",
         pw: "",
-        isIdError: true,
+        isIdError: false,
         isPwError: false,
       },
       signupData: {
@@ -215,6 +341,6 @@ export default {
       isRememberID: false,
       isAgreePolicy: false,
     };
-  },
+  },  
 };
 </script>

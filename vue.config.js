@@ -38,6 +38,5 @@ module.exports = {
         CESIUM_BASE_URL: JSON.stringify('')
       })
     ],
-
   }
 }
