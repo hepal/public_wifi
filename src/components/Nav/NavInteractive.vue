@@ -98,7 +98,7 @@
 						로그인
 					</button>
 				</Menu>
-				<Menu v-on:click="isSettingPop = false">
+				<Menu v-if="adminName.length > 0" v-on:click="isSettingPop = false">
 					<button v-on:click="setCurrentScreen('USERMANAGING')">
 						사용자 관리
 					</button>

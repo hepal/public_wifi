@@ -22,7 +22,7 @@
         <List>
           관리자명: {{adminName}}
         </List>
-        <Menu v-on:click="isSettingPop = false">
+        <Menu v-if="adminName.length > 0" v-on:click="isSettingPop = false">
           <router-link to="/manageuser">
           사용자 관리
           </router-link>

@@ -335,7 +335,7 @@ export default {
         })
         .then(function (response) {
           if (response.status == 200) {            
-            alert(response);            
+            alert("회원 가입이 완료되었습니다.");            
           }
         });     
     },
