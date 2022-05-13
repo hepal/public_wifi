@@ -87,6 +87,16 @@
             비밀번호가 일치하지 않습니다.
           </Error>
         </TextField>
+        <TextField>
+          <label> 인증키 </label>
+          <input
+            v-model="signupData.akConfirm"
+            placeholder="인증키를 입력해주세요"
+          />
+          <Error v-if="signupData.isAkConfirmError">
+            인증키 오류입니다.
+          </Error>
+        </TextField>
         <Condition>
           <input type="checkbox" id="id_remember" v-model="isAgreePolicy" />
           <label for="id_remember">
@@ -105,7 +115,7 @@ import ic_logo from "../assets/img/logo.svg";
 import Tab from "../components/Tab/Tab";
 import Button from "@/components/Button/Button";
 import axios from 'axios';
-import HashMap from "hashmap";
+import HashMap from 'hashmap';
 
 var userMap = new HashMap();
 var avgChart = null;
@@ -291,6 +301,18 @@ export default {
         return;
       } 
 
+      if(userMap.has("key")) { 
+          let keyUser =  userMap.get("key");
+          
+          if(keyUser.pass != this.signupData.akConfirm) {
+              this.signupData.isAkConfirmError = true;
+              return;
+          }
+      } else {
+        this.signupData.isAkConfirmError = true;
+        return;
+      }
+
       if(this.isAgreePolicy == false) {
         alert("이용 약관에 동의해주세요.");
         return;
@@ -301,7 +323,7 @@ export default {
         createManager : {
           id : this.signupData.id,
           name : this.signupData.name,
-          type : "user",
+          type : "admin",
           note : "웹가입",
           pass : this.signupData.pw,
         }        
@@ -333,10 +355,12 @@ export default {
         id: "",
         pw: "",
         pwConfirm: "",
+        akConfirm: "",
         isNameError: false,
         isIdError: false,
         isPwError: false,
         isPwConfirmError: false,
+        isAkConfirmError: false,
       },
       isRememberID: false,
       isAgreePolicy: false,
