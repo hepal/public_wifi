@@ -517,7 +517,7 @@ export default {
               }
 
               let busData = {
-                busNumber: format("{0}({1})", busInfo.busNum, busInfo.routeNum),
+                busNumber: format("{0}({1})", busInfo.routeNum, busInfo.busNum),
                 data: [
                   { type: TYPE.DUST, value: sensorInfo.pm2_5 },
                   { type: TYPE.NO2, value: roundToTwo(sensorInfo.no2 / 1000)}, //이산화 질소, 오존은 1/1000으로 바꿔야 함.

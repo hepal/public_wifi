@@ -518,7 +518,7 @@ export default {
             sensorType = "한파";
             alarmImage = ic_temp;
             break;
-          case "hot":
+          case "heat":
             sensorType = "폭염";
             alarmImage = ic_temp;
             break;
