@@ -240,7 +240,7 @@ function requestSensorState() {
           
 
           let busData = {
-            busNumber: format("{0}({1})", busInfo.busNum, busInfo.routeNum),
+            busNumber: format("{0}({1})", busInfo.routeNum, busInfo.busNum),
 
             data: [
               { type: TYPE.DUST, value: sensorOk },
