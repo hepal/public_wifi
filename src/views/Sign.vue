@@ -131,7 +131,7 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.color.brand.secondary100};
   ${(props) => props.theme.layout.flexColCenter}
    h2 {
-    margin-bottom: 48px;
+    margin-bottom: 24px;
   }
 `;
 
@@ -154,7 +154,7 @@ const TextField = styled.div`
   margin-right: 32px;
   display: flex;
   flex-direction: column;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
   position: relative;
   label {
     ${(props) => props.theme.type.size.caption}
@@ -184,7 +184,7 @@ const Condition = styled.div`
 
 const TabContainer = styled.div`
   display: flex;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
   .tab {
     width: 50%;
   }
