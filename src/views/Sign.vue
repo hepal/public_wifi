@@ -131,7 +131,7 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.color.brand.secondary100};
   ${(props) => props.theme.layout.flexColCenter}
    h2 {
-    margin-bottom: 24px;
+    margin-bottom: 12px;
   }
 `;
 
@@ -154,7 +154,7 @@ const TextField = styled.div`
   margin-right: 32px;
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   position: relative;
   label {
     ${(props) => props.theme.type.size.caption}
@@ -179,12 +179,12 @@ const Error = styled.p`
 
 const Condition = styled.div`
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 `;
 
 const TabContainer = styled.div`
   display: flex;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   .tab {
     width: 50%;
   }
